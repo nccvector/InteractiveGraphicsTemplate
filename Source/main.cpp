@@ -51,6 +51,30 @@
 #include "MainCamera.h"
 #include "Primitives.h"
 
+#define VectorRight                                                                                                    \
+    Vector3                                                                                                            \
+    {                                                                                                                  \
+        1.0f, 0.0f, 0.0f                                                                                               \
+    }
+
+#define VectorLeft VectorRight * -1
+
+#define VectorUp                                                                                                       \
+    Vector3                                                                                                            \
+    {                                                                                                                  \
+        0.0f, 1.0f, 0.0f                                                                                               \
+    }
+
+#define VectorDown VectorUp * -1
+
+#define VectorForward                                                                                                  \
+    Vector3                                                                                                            \
+    {                                                                                                                  \
+        0.0f, 0.0f, 1.0f                                                                                               \
+    }
+
+#define VectorBackward VectorForward * -1
+
 namespace Magnum
 {
 
@@ -178,16 +202,28 @@ void MouseInteractionExample::drawEvent()
     Input::update();
 
     // Do some processing
-    if (Input::GetKeyDown(KeyCode::A))
-    {
-        Debug{} << "PRESSED A";
-    }
+    float speed = 0.1f;
 
-    // Do some processing
-    if (Input::GetKeyUp(KeyCode::A))
-    {
-        Debug{} << "RELEASED A";
-    }
+    if (Input::GetKey(KeyCode::LeftShift))
+        speed *= 2;
+
+    if (Input::GetKey(KeyCode::W))
+        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorForward * -speed));
+
+    if (Input::GetKey(KeyCode::A))
+        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorLeft * speed));
+
+    if (Input::GetKey(KeyCode::S))
+        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorBackward * -speed));
+
+    if (Input::GetKey(KeyCode::D))
+        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorRight * speed));
+
+    if (Input::GetKey(KeyCode::E))
+        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorUp * speed));
+
+    if (Input::GetKey(KeyCode::Q))
+        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorDown * speed));
 
     // Display size
     static Vector2i size{500, 500};
@@ -487,18 +523,18 @@ void MouseInteractionExample::mouseMoveEvent(MouseMoveEvent &event)
     if (!event.buttons())
         return;
 
-    /* Translate */
-    if (event.modifiers() & MouseMoveEvent::Modifier::Shift)
-    {
-        const Vector3 p = unproject(event.position(), _lastDepth);
-        mainCam->translateLocal(_translationPoint - p); /* is Z always 0? */
-        _translationPoint = p;
+    // /* Translate */
+    // if (event.modifiers() & MouseMoveEvent::Modifier::Shift)
+    // {
+    //     const Vector3 p = unproject(event.position(), _lastDepth);
+    //     mainCam->translateLocal(_translationPoint - p); /* is Z always 0? */
+    //     _translationPoint = p;
 
-        /* Rotate around rotation point */
-    }
-    else
-        mainCam->transformLocal(Matrix4::translation(_rotationPoint) * Matrix4::rotationX(-0.01_radf * delta.y()) *
-                                Matrix4::rotationY(-0.01_radf * delta.x()) * Matrix4::translation(-_rotationPoint));
+    //     /* Rotate around rotation point */
+    // }
+    // else
+    mainCam->transformLocal(Matrix4::translation(_rotationPoint) * Matrix4::rotationX(-0.005_radf * delta.y()) *
+                            Matrix4::rotationY(-0.005_radf * delta.x()) * Matrix4::translation(-_rotationPoint));
 
     redraw();
 }
