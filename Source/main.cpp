@@ -47,6 +47,7 @@
 #include <Magnum/Trade/TextureData.h>
 
 #include "BasicDrawable.h"
+#include "Input.h"
 #include "MainCamera.h"
 #include "Primitives.h"
 
@@ -102,6 +103,7 @@ class MouseInteractionExample : public Platform::Application
 
     int pMSAA = 8;
     bool mouseOverViewport = false;
+    bool mouseHoldLMB = false;
 };
 
 MouseInteractionExample::MouseInteractionExample(const Arguments &arguments)
@@ -152,9 +154,8 @@ MouseInteractionExample::MouseInteractionExample(const Arguments &arguments)
     _phongShader = Shaders::PhongGL{};
     _phongShader.setAmbientColor(0x747474_rgbf).setShininess(80.0f);
 
-    // Creating a default cube
-    Object3D *obj = new Cube{_scene, _phongShader, _drawables};
-    obj->translate(Vector3{0.0f, 0.0f, -5.0f});
+    std::vector<Object3D *> objs = {new Cube{_scene, _phongShader, _drawables},
+                                    new Capsule{_scene, _phongShader, _drawables}};
 
     /* Grid */
     _grid = MeshTools::compile(Primitives::grid3DWireframe({15, 15}));
@@ -167,10 +168,27 @@ MouseInteractionExample::MouseInteractionExample(const Arguments &arguments)
 
     /* Initialize initial depth to the value at scene center */
     _lastDepth = ((mainCam->projectionMatrix() * mainCam->cameraMatrix()).transformPoint({}).z() + 1.0f) * 0.5f;
+
+    Input::init();
 }
 
 void MouseInteractionExample::drawEvent()
 {
+    // Input processing
+    Input::update();
+
+    // Do some processing
+    if (Input::GetKeyDown(KeyEvent::Key::A))
+    {
+        Debug{} << "PRESSED A";
+    }
+
+    // Do some processing
+    if (Input::GetKeyUp(KeyEvent::Key::A))
+    {
+        Debug{} << "RELEASED A";
+    }
+
     // Display size
     static Vector2i size{500, 500};
 
@@ -369,6 +387,8 @@ void MouseInteractionExample::viewportEvent(ViewportEvent &event)
 
 void MouseInteractionExample::keyPressEvent(KeyEvent &event)
 {
+    Input::updateDown(event.key());
+
     /* Reset the transformation to the original view */
     if (event.key() == KeyEvent::Key::Zero)
     {
@@ -411,12 +431,16 @@ void MouseInteractionExample::keyPressEvent(KeyEvent &event)
 
 void MouseInteractionExample::keyReleaseEvent(KeyEvent &event)
 {
+    Input::updateUp(event.key());
+
     if (_imgui.handleKeyReleaseEvent(event))
         return;
 }
 
 void MouseInteractionExample::mousePressEvent(MouseEvent &event)
 {
+    mouseHoldLMB = true;
+
     /* Due to compatibility reasons, scroll is also reported as a press event,
        so filter that out. Could be removed once MouseEvent::Button::Wheel is
        gone from Magnum. */
@@ -442,6 +466,8 @@ void MouseInteractionExample::mousePressEvent(MouseEvent &event)
 
 void MouseInteractionExample::mouseReleaseEvent(MouseEvent &event)
 {
+    mouseHoldLMB = false;
+
     if (_imgui.handleMouseReleaseEvent(event))
         return;
 }

@@ -52,6 +52,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/Externals/magnum-plugins EXCLUDE_FROM_ALL
 ####################################################################################################
 include_directories(${PROJECT_SOURCE_DIR}/Externals/ImGuizmo)
 include_directories(${PROJECT_SOURCE_DIR}/Source)
+include_directories(${PROJECT_SOURCE_DIR}/Source/Input)
 include_directories(${PROJECT_SOURCE_DIR}/Source/Camera)
 include_directories(${PROJECT_SOURCE_DIR}/Source/Primitives)
 include_directories(${PROJECT_SOURCE_DIR}/Source/Drawable)
