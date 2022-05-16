@@ -178,13 +178,13 @@ void MouseInteractionExample::drawEvent()
     Input::update();
 
     // Do some processing
-    if (Input::GetKeyDown(KeyEvent::Key::A))
+    if (Input::GetKeyDown(KeyCode::A))
     {
         Debug{} << "PRESSED A";
     }
 
     // Do some processing
-    if (Input::GetKeyUp(KeyEvent::Key::A))
+    if (Input::GetKeyUp(KeyCode::A))
     {
         Debug{} << "RELEASED A";
     }

@@ -90,3 +90,6 @@ bool GetKeyUp(Magnum::Platform::GlfwApplication::KeyEvent::Key key)
 }
 
 } // namespace Input
+
+// Add this utility
+using KeyCode = Magnum::Platform::GlfwApplication::KeyEvent::Key;
