@@ -50,8 +50,6 @@
 
 namespace Magnum
 {
-namespace Examples
-{
 
 using Object3D = SceneGraph::Object<SceneGraph::MatrixTransformation3D>;
 using Scene3D = SceneGraph::Scene<SceneGraph::MatrixTransformation3D>;
@@ -527,7 +525,6 @@ void MouseInteractionExample::textInputEvent(TextInputEvent &event)
         return;
 }
 
-} // namespace Examples
 } // namespace Magnum
 
-MAGNUM_APPLICATION_MAIN(Magnum::Examples::MouseInteractionExample)
+MAGNUM_APPLICATION_MAIN(Magnum::MouseInteractionExample)
