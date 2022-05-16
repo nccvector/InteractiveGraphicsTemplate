@@ -48,6 +48,7 @@
 
 #include "BasicDrawable.h"
 #include "MainCamera.h"
+#include "Primitives.h"
 
 namespace Magnum
 {
@@ -151,12 +152,9 @@ MouseInteractionExample::MouseInteractionExample(const Arguments &arguments)
     _phongShader = Shaders::PhongGL{};
     _phongShader.setAmbientColor(0x747474_rgbf).setShininess(80.0f);
 
-    /* mesh */
-    _mesh = MeshTools::compile(Primitives::cubeSolid());
-
-    /* Triangle object */
-    auto triangle = new Object3D{&_scene};
-    new ColoredDrawable{*triangle, _phongShader, _mesh, Color4{1.0f, 0.0f, 0.0f, 1.0f}, _drawables};
+    // Creating a default cube
+    Object3D *obj = new Cube{_scene, _phongShader, _drawables};
+    obj->translate(Vector3{0.0f, 0.0f, -5.0f});
 
     /* Grid */
     _grid = MeshTools::compile(Primitives::grid3DWireframe({15, 15}));
