@@ -47,6 +47,7 @@
 #include <Magnum/Trade/TextureData.h>
 
 #include "BasicDrawable.h"
+#include "MainCamera.h"
 
 namespace Magnum
 {
@@ -90,11 +91,9 @@ class MouseInteractionExample : public Platform::Application
     Shaders::FlatGL3D _flatShader{NoCreate};
     Shaders::PhongGL _phongShader{NoCreate};
     GL::Mesh _mesh{NoCreate}, _grid{NoCreate};
-
     Scene3D _scene;
     SceneGraph::DrawableGroup3D _drawables;
-    Object3D *_cameraObject;
-    SceneGraph::Camera3D *_camera;
+    MainCamera *mainCam;
 
     Float _lastDepth;
     Vector2i _lastPosition{-1};
@@ -166,15 +165,10 @@ MouseInteractionExample::MouseInteractionExample(const Arguments &arguments)
     new FlatDrawable{*grid, _flatShader, _grid, _drawables};
 
     /* Set up the camera */
-    _cameraObject = new Object3D{&_scene};
-    (*_cameraObject).translate(Vector3::zAxis(5.0f)).rotateX(-15.0_degf).rotateY(30.0_degf);
-    (*(_camera = new SceneGraph::Camera3D{*_cameraObject}))
-        .setAspectRatioPolicy(SceneGraph::AspectRatioPolicy::Extend)
-        .setProjectionMatrix(Matrix4::perspectiveProjection(35.0_degf, 1.0f, 0.01f, 1000.0f))
-        .setViewport(GL::defaultFramebuffer.viewport().size());
+    mainCam = new MainCamera{_scene};
 
     /* Initialize initial depth to the value at scene center */
-    _lastDepth = ((_camera->projectionMatrix() * _camera->cameraMatrix()).transformPoint({}).z() + 1.0f) * 0.5f;
+    _lastDepth = ((mainCam->projectionMatrix() * mainCam->cameraMatrix()).transformPoint({}).z() + 1.0f) * 0.5f;
 }
 
 void MouseInteractionExample::drawEvent()
@@ -199,7 +193,7 @@ void MouseInteractionExample::drawEvent()
     GL::Renderer::disable(GL::Renderer::Feature::ScissorTest);
     GL::Renderer::disable(GL::Renderer::Feature::Blending);
 
-    _camera->draw(_drawables);
+    mainCam->draw(_drawables);
 
     // Blit to a proxy buffer with texture
     // Display texture
@@ -298,7 +292,7 @@ void MouseInteractionExample::drawEvent()
         }
 
         size = (Vector2i)(Vector2)ImGui::GetContentRegionMax();
-        _camera->setViewport(size);
+        mainCam->setViewport(size);
 
         Magnum::ImGuiIntegration::image(colorTex, (Vector2)ImGui::GetContentRegionAvail());
 
@@ -363,9 +357,9 @@ Vector3 MouseInteractionExample::unproject(const Vector2i &windowPosition, Float
     /*
         Use the following to get global coordinates instead of camera-relative:
 
-        (_cameraObject->absoluteTransformationMatrix()*_camera->projectionMatrix().inverted()).transformPoint(in)
+        (mainCam->absoluteTransformationMatrix()*mainCam->projectionMatrix().inverted()).transformPoint(in)
     */
-    return _camera->projectionMatrix().inverted().transformPoint(in);
+    return mainCam->projectionMatrix().inverted().transformPoint(in);
 }
 
 void MouseInteractionExample::viewportEvent(ViewportEvent &event)
@@ -381,7 +375,7 @@ void MouseInteractionExample::keyPressEvent(KeyEvent &event)
     if (event.key() == KeyEvent::Key::Zero)
     {
         Debug{} << "ZERO PRESSED";
-        (*_cameraObject).resetTransformation().translate(Vector3::zAxis(5.0f)).rotateX(-15.0_degf).rotateY(30.0_degf);
+        mainCam->resetTransformation().translate(Vector3::zAxis(5.0f)).rotateX(-15.0_degf).rotateY(30.0_degf);
         redraw();
         return;
 
@@ -391,8 +385,8 @@ void MouseInteractionExample::keyPressEvent(KeyEvent &event)
              event.key() == KeyEvent::Key::Seven)
     {
         /* Start with current camera translation with the rotation inverted */
-        const Vector3 viewTranslation = _cameraObject->transformation().rotationScaling().inverted() *
-                                        _cameraObject->transformation().translation();
+        const Vector3 viewTranslation =
+            mainCam->transformation().rotationScaling().inverted() * mainCam->transformation().translation();
 
         /* Front/back */
         const Float multiplier = event.modifiers() & KeyEvent::Modifier::Ctrl ? -1.0f : 1.0f;
@@ -407,7 +401,7 @@ void MouseInteractionExample::keyPressEvent(KeyEvent &event)
         else
             CORRADE_INTERNAL_ASSERT_UNREACHABLE();
 
-        _cameraObject->setTransformation(transformation * Matrix4::translation(viewTranslation));
+        mainCam->setTransformation(transformation * Matrix4::translation(viewTranslation));
         redraw();
     }
 
@@ -473,15 +467,14 @@ void MouseInteractionExample::mouseMoveEvent(MouseMoveEvent &event)
     if (event.modifiers() & MouseMoveEvent::Modifier::Shift)
     {
         const Vector3 p = unproject(event.position(), _lastDepth);
-        _cameraObject->translateLocal(_translationPoint - p); /* is Z always 0? */
+        mainCam->translateLocal(_translationPoint - p); /* is Z always 0? */
         _translationPoint = p;
 
         /* Rotate around rotation point */
     }
     else
-        _cameraObject->transformLocal(
-            Matrix4::translation(_rotationPoint) * Matrix4::rotationX(-0.01_radf * delta.y()) *
-            Matrix4::rotationY(-0.01_radf * delta.x()) * Matrix4::translation(-_rotationPoint));
+        mainCam->transformLocal(Matrix4::translation(_rotationPoint) * Matrix4::rotationX(-0.01_radf * delta.y()) *
+                                Matrix4::rotationY(-0.01_radf * delta.x()) * Matrix4::translation(-_rotationPoint));
 
     redraw();
 }
@@ -504,7 +497,7 @@ void MouseInteractionExample::mouseScrollEvent(MouseScrollEvent &event)
         return;
 
     /* Move towards/backwards the rotation point in cam coords */
-    _cameraObject->translateLocal(_rotationPoint * direction * 0.1f);
+    mainCam->translateLocal(_rotationPoint * direction * 0.1f);
 
     event.setAccepted();
     redraw();
