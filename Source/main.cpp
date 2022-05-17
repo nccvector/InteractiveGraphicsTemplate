@@ -91,6 +91,7 @@ class MouseInteractionExample : public Platform::Application
     explicit MouseInteractionExample(const Arguments &arguments);
 
   private:
+    void update();
     void drawEvent() override;
 
     void viewportEvent(ViewportEvent &event) override;
@@ -201,17 +202,8 @@ MouseInteractionExample::MouseInteractionExample(const Arguments &arguments)
     Input::init();
 }
 
-void MouseInteractionExample::drawEvent()
+void MouseInteractionExample::update()
 {
-    Debug{} << Input::GetMouseDelta();
-
-    // Input processing
-    Input::update();
-
-    double x, y;
-    glfwGetCursorPos(window(), &x, &y);
-    Input::updateMouseMove(Vector2i{(int)x, (int)y});
-
     // Do some processing
     float moveSpeed = 0.1f;
     auto mouseSensitivity = 0.003_radf;
@@ -251,6 +243,25 @@ void MouseInteractionExample::drawEvent()
         if (Input::GetKey(KeyCode::Q))
             mainCam->translateLocal(VectorDown * moveSpeed);
     }
+
+    ImGui::ShowDemoWindow();
+
+    // ImGui::Begin("Debug Size");
+    // ImGui::SliderInt("size-x", &size[0], 10, 2000);
+    // ImGui::SliderInt("size-y", &size[1], 10, 2000);
+    // ImGui::End();
+}
+
+void MouseInteractionExample::drawEvent()
+{
+    // Input processing
+    Input::update();
+
+    double x, y;
+    glfwGetCursorPos(window(), &x, &y);
+    Input::updateMouseMove(Vector2i{(int)x, (int)y});
+
+    //================================================================================
 
     // Display size
     static Vector2i size{500, 500};
@@ -349,8 +360,11 @@ void MouseInteractionExample::drawEvent()
         }
 
         //================================================================================
-        ImGui::ShowDemoWindow();
 
+        // Do your update here...
+        update();
+
+        // Drawing Viewport
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         ImGui::Begin("OpenGL Viewport");
         ImGui::BeginChild("WinCont", ImVec2{0, 0}, false, ImGuiWindowFlags_NoMove);
@@ -393,10 +407,6 @@ void MouseInteractionExample::drawEvent()
         ImGui::End();
         ImGui::PopStyleVar();
 
-        // ImGui::Begin("Debug Size");
-        // ImGui::SliderInt("size-x", &size[0], 10, 2000);
-        // ImGui::SliderInt("size-y", &size[1], 10, 2000);
-        // ImGui::End();
         //================================================================================
 
         ImGui::End();
