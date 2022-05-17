@@ -104,7 +104,7 @@ class MouseInteractionExample : public Platform::Application
     void mouseScrollEvent(MouseScrollEvent &event) override;
     void textInputEvent(TextInputEvent &event) override;
 
-    void EditTransform(Matrix4 &matrix);
+    bool EditTransform(Matrix4 &matrix);
 
     //================================================================================
     ImGuiIntegration::Context _imgui{NoCreate};
@@ -386,8 +386,8 @@ void MouseInteractionExample::drawEvent()
 
         // Transform handling (IMGUIZMO DRAWING)
         Matrix4 mat = tempObj->transformation();
-        EditTransform(mat);
-        tempObj->setTransformation(mat);
+        if (EditTransform(mat))
+            tempObj->setTransformation(mat);
 
         ImGui::EndChild();
         ImGui::End();
@@ -487,13 +487,13 @@ void MouseInteractionExample::textInputEvent(TextInputEvent &event)
         event.setAccepted(true);
 }
 
-void MouseInteractionExample::EditTransform(Matrix4 &matrix)
+bool MouseInteractionExample::EditTransform(Matrix4 &matrix)
 {
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::SetDrawlist();
 
     static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
-    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
+    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
 
     // if (ImGui::IsKeyPressed(90))
     //     mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
@@ -558,6 +558,8 @@ void MouseInteractionExample::EditTransform(Matrix4 &matrix)
 
     ImGuizmo::Manipulate(mainCam->transformation().inverted().data(), mainCam->projectionMatrix().data(),
                          mCurrentGizmoOperation, mCurrentGizmoMode, matrix.data(), NULL, NULL);
+
+    return ImGuizmo::IsUsing();
 }
 
 } // namespace Magnum
