@@ -208,22 +208,22 @@ void MouseInteractionExample::drawEvent()
         speed *= 2;
 
     if (Input::GetKey(KeyCode::W))
-        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorForward * -speed));
+        mainCam->translateLocal(VectorForward * -speed);
 
     if (Input::GetKey(KeyCode::A))
-        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorLeft * speed));
+        mainCam->translateLocal(VectorLeft * speed);
 
     if (Input::GetKey(KeyCode::S))
-        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorBackward * -speed));
+        mainCam->translateLocal(VectorBackward * -speed);
 
     if (Input::GetKey(KeyCode::D))
-        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorRight * speed));
+        mainCam->translateLocal(VectorRight * speed);
 
     if (Input::GetKey(KeyCode::E))
-        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorUp * speed));
+        mainCam->translateLocal(VectorUp * speed);
 
     if (Input::GetKey(KeyCode::Q))
-        mainCam->translate(mainCam->cameraMatrix().inverted().transformVector(VectorDown * speed));
+        mainCam->translateLocal(VectorDown * speed);
 
     // Display size
     static Vector2i size{500, 500};
