@@ -52,6 +52,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/Externals/magnum-plugins EXCLUDE_FROM_ALL
 ####################################################################################################
 include_directories(${PROJECT_SOURCE_DIR}/Externals/ImGuizmo)
 include_directories(${PROJECT_SOURCE_DIR}/Source)
+include_directories(${PROJECT_SOURCE_DIR}/Source/Application)
 include_directories(${PROJECT_SOURCE_DIR}/Source/Input)
 include_directories(${PROJECT_SOURCE_DIR}/Source/Camera)
 include_directories(${PROJECT_SOURCE_DIR}/Source/Primitives)
@@ -76,6 +77,8 @@ find_package(MagnumIntegration REQUIRED ImGui)
 add_executable(${PROJECT_NAME} 
     ${PROJECT_SOURCE_DIR}/Externals/ImGuizmo/ImGuizmo.cpp
     Source/main.cpp
+    Source/Input/Input.cpp
+    Source/Application/Application.cpp
     )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
