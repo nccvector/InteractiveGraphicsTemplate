@@ -10,6 +10,9 @@ bool keyUp[350];
 bool mouseButtonDown[3];
 bool mouseButtonHold[3];
 bool mouseButtonUp[3];
+Magnum::Vector2i _lastPosition = Magnum::Vector2i{-1};
+Magnum::Vector2i mouseDelta;
+Magnum::Vector2i mousePosition;
 
 std::vector<int> clearGroupDown;
 std::vector<int> clearGroupUp;
@@ -63,6 +66,19 @@ void updateMouseButtonUp(Magnum::Platform::GlfwApplication::MouseEvent::Button b
 {
     mouseButtonDown[(int)button] = false;
     mouseButtonUp[(int)button] = true;
+}
+
+void updateMouseMove(Magnum::Vector2i position)
+{
+    if (_lastPosition == Magnum::Vector2i{-1})
+        _lastPosition = position;
+
+    mousePosition = position;
+
+    mouseDelta = mousePosition - _lastPosition;
+
+    // Update last position
+    _lastPosition = mousePosition;
 }
 
 // Call in update/drawEvent
@@ -170,6 +186,11 @@ bool GetMouseButtonUp(int button)
 bool GetMouseButtonUp(Magnum::Platform::GlfwApplication::MouseEvent::Button button)
 {
     return mouseButtonUp[(int)button];
+}
+
+Magnum::Vector2i GetMouseDelta()
+{
+    return mouseDelta;
 }
 
 } // namespace Input

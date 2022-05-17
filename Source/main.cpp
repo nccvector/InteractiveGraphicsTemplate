@@ -203,11 +203,18 @@ MouseInteractionExample::MouseInteractionExample(const Arguments &arguments)
 
 void MouseInteractionExample::drawEvent()
 {
+    Debug{} << Input::GetMouseDelta();
+
     // Input processing
     Input::update();
 
+    double x, y;
+    glfwGetCursorPos(window(), &x, &y);
+    Input::updateMouseMove(Vector2i{(int)x, (int)y});
+
     // Do some processing
-    float speed = 0.1f;
+    float moveSpeed = 0.1f;
+    auto mouseSensitivity = 0.003_radf;
 
     if (mouseOverViewport && Input::GetMouseButton(1))
     {
@@ -215,33 +222,34 @@ void MouseInteractionExample::drawEvent()
         _rotationPoint = mainCam->transformation().translation();
 
         // Rotation about world Y
-        mainCam->transform(Matrix4::translation(_rotationPoint) * Matrix4::rotationY(-0.003_radf * delta.x()) *
+        mainCam->transform(Matrix4::translation(_rotationPoint) *
+                           Matrix4::rotationY(-mouseSensitivity * Input::GetMouseDelta().x()) *
                            Matrix4::translation(-_rotationPoint));
 
         // Rotation about local
-        mainCam->transformLocal(Matrix4::rotationX(-0.003_radf * delta.y()));
+        mainCam->transformLocal(Matrix4::rotationX(-mouseSensitivity * Input::GetMouseDelta().y()));
 
         // Move camera with keys
         if (Input::GetKey(KeyCode::LeftShift))
-            speed *= 2;
+            moveSpeed *= 2;
 
         if (Input::GetKey(KeyCode::W))
-            mainCam->translateLocal(VectorForward * -speed);
+            mainCam->translateLocal(VectorForward * -moveSpeed);
 
         if (Input::GetKey(KeyCode::A))
-            mainCam->translateLocal(VectorLeft * speed);
+            mainCam->translateLocal(VectorLeft * moveSpeed);
 
         if (Input::GetKey(KeyCode::S))
-            mainCam->translateLocal(VectorBackward * -speed);
+            mainCam->translateLocal(VectorBackward * -moveSpeed);
 
         if (Input::GetKey(KeyCode::D))
-            mainCam->translateLocal(VectorRight * speed);
+            mainCam->translateLocal(VectorRight * moveSpeed);
 
         if (Input::GetKey(KeyCode::E))
-            mainCam->translateLocal(VectorUp * speed);
+            mainCam->translateLocal(VectorUp * moveSpeed);
 
         if (Input::GetKey(KeyCode::Q))
-            mainCam->translateLocal(VectorDown * speed);
+            mainCam->translateLocal(VectorDown * moveSpeed);
     }
 
     // Display size
@@ -367,8 +375,8 @@ void MouseInteractionExample::drawEvent()
             else
                 mouseOverViewport = false;
 
-            // Debug Rectangle
-            ImGui::GetForegroundDrawList()->AddRect(viewportRectMin, viewportRectMax, IM_COL32(150, 150, 150, 255));
+            // // Debug Rectangle
+            // ImGui::GetForegroundDrawList()->AddRect(viewportRectMin, viewportRectMax, IM_COL32(150, 150, 150, 255));
         }
 
         size = (Vector2i)(Vector2)ImGui::GetContentRegionMax();
@@ -376,16 +384,14 @@ void MouseInteractionExample::drawEvent()
 
         Magnum::ImGuiIntegration::image(colorTex, (Vector2)ImGui::GetContentRegionAvail());
 
-        ImGui::EndChild();
-        ImGui::End();
-        ImGui::PopStyleVar();
-
-        ImGui::Begin("Editor");
-        // Transform handling
+        // Transform handling (IMGUIZMO DRAWING)
         Matrix4 mat = tempObj->transformation();
         EditTransform(mat);
         tempObj->setTransformation(mat);
+
+        ImGui::EndChild();
         ImGui::End();
+        ImGui::PopStyleVar();
 
         // ImGui::Begin("Debug Size");
         // ImGui::SliderInt("size-x", &size[0], 10, 2000);
@@ -409,8 +415,6 @@ void MouseInteractionExample::drawEvent()
     _imgui.drawFrame();
 
     //================================================================================
-
-    Debug{} << "Mouse over viewport" << mouseOverViewport;
 
     swapBuffers();
     redraw();
@@ -461,15 +465,14 @@ void MouseInteractionExample::mouseReleaseEvent(MouseEvent &event)
 
 void MouseInteractionExample::mouseMoveEvent(MouseMoveEvent &event)
 {
+    //================================================================================
+
     if (_imgui.handleMouseMoveEvent(event) != mouseOverViewport)
         return;
 }
 
 void MouseInteractionExample::mouseScrollEvent(MouseScrollEvent &event)
 {
-
-    //================================================================================
-
     if (_imgui.handleMouseScrollEvent(event))
     {
         /* Prevent scrolling the page */
@@ -480,52 +483,51 @@ void MouseInteractionExample::mouseScrollEvent(MouseScrollEvent &event)
 
 void MouseInteractionExample::textInputEvent(TextInputEvent &event)
 {
-    Debug{} << event.text().data();
-
     if (_imgui.handleTextInputEvent(event))
         event.setAccepted(true);
 }
 
 void MouseInteractionExample::EditTransform(Matrix4 &matrix)
 {
-    // ImGuizmo::BeginFrame();
+    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::SetDrawlist();
 
     static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
     static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
 
-    if (ImGui::IsKeyPressed(90))
-        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(69))
-        mCurrentGizmoOperation = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(82)) // r Key
-        mCurrentGizmoOperation = ImGuizmo::SCALE;
-    if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
-        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
-        mCurrentGizmoOperation = ImGuizmo::ROTATE;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
-        mCurrentGizmoOperation = ImGuizmo::SCALE;
+    // if (ImGui::IsKeyPressed(90))
+    //     mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    // if (ImGui::IsKeyPressed(69))
+    //     mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    // if (ImGui::IsKeyPressed(82)) // r Key
+    //     mCurrentGizmoOperation = ImGuizmo::SCALE;
+    // if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
+    //     mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    // ImGui::SameLine();
+    // if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
+    //     mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    // ImGui::SameLine();
+    // if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
+    //     mCurrentGizmoOperation = ImGuizmo::SCALE;
 
-    float matrixTranslation[3];
-    float matrixRotation[3];
-    float matrixScale[3];
+    // float matrixTranslation[3];
+    // float matrixRotation[3];
+    // float matrixScale[3];
 
-    ImGuizmo::DecomposeMatrixToComponents(matrix.data(), matrixTranslation, matrixRotation, matrixScale);
-    ImGui::InputFloat3("Tr", matrixTranslation, "%.3f");
-    ImGui::InputFloat3("Rt", matrixRotation, "%.3f");
-    ImGui::InputFloat3("Sc", matrixScale, "%.3f");
-    ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, matrix.data());
+    // ImGuizmo::DecomposeMatrixToComponents(matrix.data(), matrixTranslation, matrixRotation, matrixScale);
+    // ImGui::InputFloat3("Tr", matrixTranslation, "%.3f");
+    // ImGui::InputFloat3("Rt", matrixRotation, "%.3f");
+    // ImGui::InputFloat3("Sc", matrixScale, "%.3f");
+    // ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, matrix.data());
 
-    if (mCurrentGizmoOperation != ImGuizmo::SCALE)
-    {
-        if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
-            mCurrentGizmoMode = ImGuizmo::LOCAL;
-        ImGui::SameLine();
-        if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
-            mCurrentGizmoMode = ImGuizmo::WORLD;
-    }
+    // if (mCurrentGizmoOperation != ImGuizmo::SCALE)
+    // {
+    //     if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
+    //         mCurrentGizmoMode = ImGuizmo::LOCAL;
+    //     ImGui::SameLine();
+    //     if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+    //         mCurrentGizmoMode = ImGuizmo::WORLD;
+    // }
 
     // static bool useSnap(false);
     // if (ImGui::IsKeyPressed(83))
@@ -550,7 +552,10 @@ void MouseInteractionExample::EditTransform(Matrix4 &matrix)
     // }
 
     ImGuiIO &io = ImGui::GetIO();
-    ImGuizmo::SetRect(viewportRectMin.x, viewportRectMin.y, viewportRectMax.x, viewportRectMax.y);
+
+    ImGuizmo::SetRect(viewportRectMin.x, viewportRectMin.y, viewportRectMax.x - viewportRectMin.x,
+                      viewportRectMax.y - viewportRectMin.y);
+
     ImGuizmo::Manipulate(mainCam->transformation().inverted().data(), mainCam->projectionMatrix().data(),
                          mCurrentGizmoOperation, mCurrentGizmoMode, matrix.data(), NULL, NULL);
 }
