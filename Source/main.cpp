@@ -46,6 +46,8 @@
 #include <Magnum/Trade/SceneData.h>
 #include <Magnum/Trade/TextureData.h>
 
+#include <ImGuizmo.h>
+
 #include "BasicDrawable.h"
 #include "Input.h"
 #include "MainCamera.h"
@@ -89,9 +91,6 @@ class MouseInteractionExample : public Platform::Application
     explicit MouseInteractionExample(const Arguments &arguments);
 
   private:
-    Float depthAt(const Vector2i &windowPosition);
-    Vector3 unproject(const Vector2i &windowPosition, Float depth) const;
-
     void drawEvent() override;
 
     void viewportEvent(ViewportEvent &event) override;
@@ -104,6 +103,8 @@ class MouseInteractionExample : public Platform::Application
     void mouseMoveEvent(MouseMoveEvent &event) override;
     void mouseScrollEvent(MouseScrollEvent &event) override;
     void textInputEvent(TextInputEvent &event) override;
+
+    void EditTransform(Matrix4 &matrix);
 
     //================================================================================
     ImGuiIntegration::Context _imgui{NoCreate};
@@ -127,7 +128,9 @@ class MouseInteractionExample : public Platform::Application
 
     int pMSAA = 8;
     bool mouseOverViewport = false;
-    bool mouseHoldLMB = false;
+    Object3D *tempObj;
+    ImVec2 viewportRectMin;
+    ImVec2 viewportRectMax;
 };
 
 MouseInteractionExample::MouseInteractionExample(const Arguments &arguments)
@@ -181,6 +184,8 @@ MouseInteractionExample::MouseInteractionExample(const Arguments &arguments)
     std::vector<Object3D *> objs = {new Cube{_scene, _phongShader, _drawables},
                                     new Capsule{_scene, _phongShader, _drawables}};
 
+    tempObj = objs[0];
+
     /* Grid */
     _grid = MeshTools::compile(Primitives::grid3DWireframe({15, 15}));
     auto grid = new Object3D{&_scene};
@@ -204,26 +209,40 @@ void MouseInteractionExample::drawEvent()
     // Do some processing
     float speed = 0.1f;
 
-    if (Input::GetKey(KeyCode::LeftShift))
-        speed *= 2;
+    if (mouseOverViewport && Input::GetMouseButton(1))
+    {
+        // Update camera rotations
+        _rotationPoint = mainCam->transformation().translation();
 
-    if (Input::GetKey(KeyCode::W))
-        mainCam->translateLocal(VectorForward * -speed);
+        // Rotation about world Y
+        mainCam->transform(Matrix4::translation(_rotationPoint) * Matrix4::rotationY(-0.003_radf * delta.x()) *
+                           Matrix4::translation(-_rotationPoint));
 
-    if (Input::GetKey(KeyCode::A))
-        mainCam->translateLocal(VectorLeft * speed);
+        // Rotation about local
+        mainCam->transformLocal(Matrix4::rotationX(-0.003_radf * delta.y()));
 
-    if (Input::GetKey(KeyCode::S))
-        mainCam->translateLocal(VectorBackward * -speed);
+        // Move camera with keys
+        if (Input::GetKey(KeyCode::LeftShift))
+            speed *= 2;
 
-    if (Input::GetKey(KeyCode::D))
-        mainCam->translateLocal(VectorRight * speed);
+        if (Input::GetKey(KeyCode::W))
+            mainCam->translateLocal(VectorForward * -speed);
 
-    if (Input::GetKey(KeyCode::E))
-        mainCam->translateLocal(VectorUp * speed);
+        if (Input::GetKey(KeyCode::A))
+            mainCam->translateLocal(VectorLeft * speed);
 
-    if (Input::GetKey(KeyCode::Q))
-        mainCam->translateLocal(VectorDown * speed);
+        if (Input::GetKey(KeyCode::S))
+            mainCam->translateLocal(VectorBackward * -speed);
+
+        if (Input::GetKey(KeyCode::D))
+            mainCam->translateLocal(VectorRight * speed);
+
+        if (Input::GetKey(KeyCode::E))
+            mainCam->translateLocal(VectorUp * speed);
+
+        if (Input::GetKey(KeyCode::Q))
+            mainCam->translateLocal(VectorDown * speed);
+    }
 
     // Display size
     static Vector2i size{500, 500};
@@ -269,6 +288,14 @@ void MouseInteractionExample::drawEvent()
     GL::defaultFramebuffer.clear(GL::FramebufferClear::Color).bind();
 
     _imgui.newFrame();
+
+    /* Check for text input */
+    if (ImGui::GetIO().WantTextInput && !isTextInputActive())
+        startTextInput();
+    else if (!ImGui::GetIO().WantTextInput && isTextInputActive())
+        stopTextInput();
+
+    ImGuizmo::BeginFrame();
 
     {
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
@@ -320,27 +347,28 @@ void MouseInteractionExample::drawEvent()
         ImGui::Begin("OpenGL Viewport");
         ImGui::BeginChild("WinCont", ImVec2{0, 0}, false, ImGuiWindowFlags_NoMove);
 
+        // UPDATE VIEWPORT RECT
+        viewportRectMin = ImGui::GetWindowContentRegionMin();
+        viewportRectMax = ImGui::GetWindowContentRegionMax();
+        viewportRectMin.x += ImGui::GetWindowPos().x;
+        viewportRectMin.y += ImGui::GetWindowPos().y;
+        viewportRectMax.x += ImGui::GetWindowPos().x;
+        viewportRectMax.y += ImGui::GetWindowPos().y;
+
         mouseOverViewport = ImGui::IsWindowHovered();
         if (mouseOverViewport)
         {
-            // Get content rectangle
-            ImVec2 vMin = ImGui::GetWindowContentRegionMin();
-            ImVec2 vMax = ImGui::GetWindowContentRegionMax();
-
-            vMin.x += ImGui::GetWindowPos().x;
-            vMin.y += ImGui::GetWindowPos().y;
-            vMax.x += ImGui::GetWindowPos().x;
-            vMax.y += ImGui::GetWindowPos().y;
 
             ImVec2 screen_pos = ImGui::GetMousePos();
 
-            if (screen_pos.x > vMin.x && screen_pos.y > vMin.y && screen_pos.x < vMax.x && screen_pos.y < vMax.y)
+            if (screen_pos.x > viewportRectMin.x && screen_pos.y > viewportRectMin.y &&
+                screen_pos.x < viewportRectMax.x && screen_pos.y < viewportRectMax.y)
                 mouseOverViewport = true;
             else
                 mouseOverViewport = false;
 
             // Debug Rectangle
-            ImGui::GetForegroundDrawList()->AddRect(vMin, vMax, IM_COL32(150, 150, 150, 255));
+            ImGui::GetForegroundDrawList()->AddRect(viewportRectMin, viewportRectMax, IM_COL32(150, 150, 150, 255));
         }
 
         size = (Vector2i)(Vector2)ImGui::GetContentRegionMax();
@@ -351,6 +379,13 @@ void MouseInteractionExample::drawEvent()
         ImGui::EndChild();
         ImGui::End();
         ImGui::PopStyleVar();
+
+        ImGui::Begin("Editor");
+        // Transform handling
+        Matrix4 mat = tempObj->transformation();
+        EditTransform(mat);
+        tempObj->setTransformation(mat);
+        ImGui::End();
 
         // ImGui::Begin("Debug Size");
         // ImGui::SliderInt("size-x", &size[0], 10, 2000);
@@ -381,39 +416,6 @@ void MouseInteractionExample::drawEvent()
     redraw();
 }
 
-Float MouseInteractionExample::depthAt(const Vector2i &windowPosition)
-{
-    /* First scale the position from being relative to window size to being
-       relative to framebuffer size as those two can be different on HiDPI
-       systems */
-    const Vector2i position = windowPosition * Vector2{framebufferSize()} / Vector2{windowSize()};
-    const Vector2i fbPosition{position.x(), GL::defaultFramebuffer.viewport().sizeY() - position.y() - 1};
-
-    GL::defaultFramebuffer.mapForRead(GL::DefaultFramebuffer::ReadAttachment::Front);
-    Image2D data = GL::defaultFramebuffer.read(Range2Di::fromSize(fbPosition, Vector2i{1}).padded(Vector2i{2}),
-                                               {GL::PixelFormat::DepthComponent, GL::PixelType::Float});
-
-    /* TODO: change to just Math::min<Float>(data.pixels<Float>() when the
-       batch functions in Math can handle 2D views */
-    return Math::min<Float>(data.pixels<Float>().asContiguous());
-}
-
-Vector3 MouseInteractionExample::unproject(const Vector2i &windowPosition, Float depth) const
-{
-    /* We have to take window size, not framebuffer size, since the position is
-       in window coordinates and the two can be different on HiDPI systems */
-    const Vector2i viewSize = windowSize();
-    const Vector2i viewPosition{windowPosition.x(), viewSize.y() - windowPosition.y() - 1};
-    const Vector3 in{2 * Vector2{viewPosition} / Vector2{viewSize} - Vector2{1.0f}, depth * 2.0f - 1.0f};
-
-    /*
-        Use the following to get global coordinates instead of camera-relative:
-
-        (mainCam->absoluteTransformationMatrix()*mainCam->projectionMatrix().inverted()).transformPoint(in)
-    */
-    return mainCam->projectionMatrix().inverted().transformPoint(in);
-}
-
 void MouseInteractionExample::viewportEvent(ViewportEvent &event)
 {
     GL::defaultFramebuffer.setViewport({{}, event.framebufferSize()});
@@ -425,44 +427,10 @@ void MouseInteractionExample::keyPressEvent(KeyEvent &event)
 {
     Input::updateDown(event.key());
 
-    /* Reset the transformation to the original view */
-    if (event.key() == KeyEvent::Key::Zero)
-    {
-        Debug{} << "ZERO PRESSED";
-        mainCam->resetTransformation().translate(Vector3::zAxis(5.0f)).rotateX(-15.0_degf).rotateY(30.0_degf);
-        redraw();
-        return;
-
-        /* Axis-aligned view */
-    }
-    else if (event.key() == KeyEvent::Key::One || event.key() == KeyEvent::Key::Three ||
-             event.key() == KeyEvent::Key::Seven)
-    {
-        /* Start with current camera translation with the rotation inverted */
-        const Vector3 viewTranslation =
-            mainCam->transformation().rotationScaling().inverted() * mainCam->transformation().translation();
-
-        /* Front/back */
-        const Float multiplier = event.modifiers() & KeyEvent::Modifier::Ctrl ? -1.0f : 1.0f;
-
-        Matrix4 transformation;
-        if (event.key() == KeyEvent::Key::Seven) /* Top/bottom */
-            transformation = Matrix4::rotationX(-90.0_degf * multiplier);
-        else if (event.key() == KeyEvent::Key::One) /* Front/back */
-            transformation = Matrix4::rotationY(90.0_degf - 90.0_degf * multiplier);
-        else if (event.key() == KeyEvent::Key::Three) /* Right/left */
-            transformation = Matrix4::rotationY(90.0_degf * multiplier);
-        else
-            CORRADE_INTERNAL_ASSERT_UNREACHABLE();
-
-        mainCam->setTransformation(transformation * Matrix4::translation(viewTranslation));
-        redraw();
-    }
-
     //================================================================================
 
     if (_imgui.handleKeyPressEvent(event))
-        return;
+        event.setAccepted(true);
 }
 
 void MouseInteractionExample::keyReleaseEvent(KeyEvent &event)
@@ -470,29 +438,12 @@ void MouseInteractionExample::keyReleaseEvent(KeyEvent &event)
     Input::updateUp(event.key());
 
     if (_imgui.handleKeyReleaseEvent(event))
-        return;
+        event.setAccepted(true);
 }
 
 void MouseInteractionExample::mousePressEvent(MouseEvent &event)
 {
-    mouseHoldLMB = true;
-
-    /* Due to compatibility reasons, scroll is also reported as a press event,
-       so filter that out. Could be removed once MouseEvent::Button::Wheel is
-       gone from Magnum. */
-    if (event.button() != MouseEvent::Button::Left && event.button() != MouseEvent::Button::Middle)
-        return;
-
-    const Float currentDepth = depthAt(event.position());
-    const Float depth = currentDepth == 1.0f ? _lastDepth : currentDepth;
-    _translationPoint = unproject(event.position(), depth);
-    /* Update the rotation point only if we're not zooming against infinite
-       depth or if the original rotation point is not yet initialized */
-    if (currentDepth != 1.0f || _rotationPoint.isZero())
-    {
-        _rotationPoint = _translationPoint;
-        _lastDepth = depth;
-    }
+    Input::updateMouseButtonDown(event.button());
 
     //================================================================================
 
@@ -502,7 +453,7 @@ void MouseInteractionExample::mousePressEvent(MouseEvent &event)
 
 void MouseInteractionExample::mouseReleaseEvent(MouseEvent &event)
 {
-    mouseHoldLMB = false;
+    Input::updateMouseButtonUp(event.button());
 
     if (_imgui.handleMouseReleaseEvent(event))
         return;
@@ -512,55 +463,10 @@ void MouseInteractionExample::mouseMoveEvent(MouseMoveEvent &event)
 {
     if (_imgui.handleMouseMoveEvent(event) != mouseOverViewport)
         return;
-
-    //================================================================================
-
-    if (_lastPosition == Vector2i{-1})
-        _lastPosition = event.position();
-    const Vector2i delta = event.position() - _lastPosition;
-    _lastPosition = event.position();
-
-    if (!event.buttons())
-        return;
-
-    // /* Translate */
-    // if (event.modifiers() & MouseMoveEvent::Modifier::Shift)
-    // {
-    //     const Vector3 p = unproject(event.position(), _lastDepth);
-    //     mainCam->translateLocal(_translationPoint - p); /* is Z always 0? */
-    //     _translationPoint = p;
-
-    //     /* Rotate around rotation point */
-    // }
-    // else
-    mainCam->transformLocal(Matrix4::translation(_rotationPoint) * Matrix4::rotationX(-0.005_radf * delta.y()) *
-                            Matrix4::rotationY(-0.005_radf * delta.x()) * Matrix4::translation(-_rotationPoint));
-
-    redraw();
 }
 
 void MouseInteractionExample::mouseScrollEvent(MouseScrollEvent &event)
 {
-    const Float currentDepth = depthAt(event.position());
-    const Float depth = currentDepth == 1.0f ? _lastDepth : currentDepth;
-    const Vector3 p = unproject(event.position(), depth);
-    /* Update the rotation point only if we're not zooming against infinite
-       depth or if the original rotation point is not yet initialized */
-    if (currentDepth != 1.0f || _rotationPoint.isZero())
-    {
-        _rotationPoint = p;
-        _lastDepth = depth;
-    }
-
-    const Float direction = event.offset().y();
-    if (!direction)
-        return;
-
-    /* Move towards/backwards the rotation point in cam coords */
-    mainCam->translateLocal(_rotationPoint * direction * 0.1f);
-
-    event.setAccepted();
-    redraw();
 
     //================================================================================
 
@@ -574,8 +480,79 @@ void MouseInteractionExample::mouseScrollEvent(MouseScrollEvent &event)
 
 void MouseInteractionExample::textInputEvent(TextInputEvent &event)
 {
+    Debug{} << event.text().data();
+
     if (_imgui.handleTextInputEvent(event))
-        return;
+        event.setAccepted(true);
+}
+
+void MouseInteractionExample::EditTransform(Matrix4 &matrix)
+{
+    // ImGuizmo::BeginFrame();
+
+    static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
+    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
+
+    if (ImGui::IsKeyPressed(90))
+        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    if (ImGui::IsKeyPressed(69))
+        mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    if (ImGui::IsKeyPressed(82)) // r Key
+        mCurrentGizmoOperation = ImGuizmo::SCALE;
+    if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
+        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
+        mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
+        mCurrentGizmoOperation = ImGuizmo::SCALE;
+
+    float matrixTranslation[3];
+    float matrixRotation[3];
+    float matrixScale[3];
+
+    ImGuizmo::DecomposeMatrixToComponents(matrix.data(), matrixTranslation, matrixRotation, matrixScale);
+    ImGui::InputFloat3("Tr", matrixTranslation, "%.3f");
+    ImGui::InputFloat3("Rt", matrixRotation, "%.3f");
+    ImGui::InputFloat3("Sc", matrixScale, "%.3f");
+    ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, matrix.data());
+
+    if (mCurrentGizmoOperation != ImGuizmo::SCALE)
+    {
+        if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
+            mCurrentGizmoMode = ImGuizmo::LOCAL;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+            mCurrentGizmoMode = ImGuizmo::WORLD;
+    }
+
+    // static bool useSnap(false);
+    // if (ImGui::IsKeyPressed(83))
+    //     useSnap = !useSnap;
+    // ImGui::Checkbox("", &useSnap);
+    // ImGui::SameLine();
+    // vec_t snap;
+    // switch (mCurrentGizmoOperation)
+    // {
+    // case ImGuizmo::TRANSLATE:
+    //     snap = config.mSnapTranslation;
+    //     ImGui::InputFloat3("Snap", &snap.x);
+    //     break;
+    // case ImGuizmo::ROTATE:
+    //     snap = config.mSnapRotation;
+    //     ImGui::InputFloat("Angle Snap", &snap.x);
+    //     break;
+    // case ImGuizmo::SCALE:
+    //     snap = config.mSnapScale;
+    //     ImGui::InputFloat("Scale Snap", &snap.x);
+    //     break;
+    // }
+
+    ImGuiIO &io = ImGui::GetIO();
+    ImGuizmo::SetRect(viewportRectMin.x, viewportRectMin.y, viewportRectMax.x, viewportRectMax.y);
+    ImGuizmo::Manipulate(mainCam->transformation().inverted().data(), mainCam->projectionMatrix().data(),
+                         mCurrentGizmoOperation, mCurrentGizmoMode, matrix.data(), NULL, NULL);
 }
 
 } // namespace Magnum
