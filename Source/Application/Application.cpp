@@ -80,7 +80,7 @@ Application::Application(const Arguments &arguments) : Platform::Application{arg
     // Initialize the singletone instance for use
     Application::instance = this;
 
-    Input::init();
+    Input::init(window());
 
     // ATTACH ALL THE LAYERS
     gui.OnAttach();
@@ -94,10 +94,6 @@ void Application::drawEvent()
 {
     // Input processing
     Input::update();
-
-    double x, y;
-    glfwGetCursorPos(window(), &x, &y);
-    Input::updateMouseMove(Vector2i{(int)x, (int)y});
 
     //================================================================================
 

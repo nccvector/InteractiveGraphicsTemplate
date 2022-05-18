@@ -12,14 +12,18 @@ Magnum::Vector2i _lastPosition = Magnum::Vector2i{-1};
 Magnum::Vector2i mouseDelta;
 Magnum::Vector2i mousePosition;
 
+GLFWwindow *_window;
+
 std::vector<int> clearGroupDown;
 std::vector<int> clearGroupUp;
 std::vector<int> clearGroupMouseButtonDown;
 std::vector<int> clearGroupMouseButtonUp;
 
 // PLEASE CALL INIT IN YOUR CONSTRUCTORS OR MAIN
-void init()
+void init(GLFWwindow *window)
 {
+    _window = window;
+
     // Initializing inputs
     for (int i = 0; i < 350; i++)
     {
@@ -139,6 +143,11 @@ void update()
             }
         }
     }
+
+    // Update mouse move
+    double x, y;
+    glfwGetCursorPos(_window, &x, &y);
+    Input::updateMouseMove(Magnum::Vector2i{(int)x, (int)y});
 }
 
 bool GetKeyDown(Magnum::Platform::GlfwApplication::KeyEvent::Key key)

@@ -16,13 +16,15 @@ extern Magnum::Vector2i _lastPosition;
 extern Magnum::Vector2i mouseDelta;
 extern Magnum::Vector2i mousePosition;
 
+extern GLFWwindow *_window;
+
 extern std::vector<int> clearGroupDown;
 extern std::vector<int> clearGroupUp;
 extern std::vector<int> clearGroupMouseButtonDown;
 extern std::vector<int> clearGroupMouseButtonUp;
 
 // PLEASE CALL INIT IN YOUR CONSTRUCTORS OR MAIN
-void init();
+void init(GLFWwindow *window);
 
 void updateDown(Magnum::Platform::GlfwApplication::KeyEvent::Key key);
 
