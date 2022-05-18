@@ -23,6 +23,8 @@
 
 #include "LayerStack.h"
 
+#include <ImGuizmo.h>
+
 #define VectorRight                                                                                                    \
     Magnum::Vector3                                                                                                    \
     {                                                                                                                  \
@@ -63,6 +65,11 @@ class Application : public Magnum::Platform::Application
     }
 
     bool EditTransform(Magnum::Matrix4 &matrix);
+    void AddPlane();
+    void AddCube();
+    void AddSphere();
+    void AddCone();
+    void AddCapsule();
 
   private:
     void drawEvent() override;
@@ -95,14 +102,17 @@ class Application : public Magnum::Platform::Application
     Magnum::GL::Mesh _grid{Corrade::NoCreate};
     Magnum::Scene3D _scene;
     Magnum::SceneGraph::DrawableGroup3D _drawables;
+    Magnum::SceneGraph::DrawableGroup3D _debugDrawables;
     Magnum::MainCamera *mainCam;
 
     int pMSAA = 8;
     bool mouseOverViewport = false;
     ImVec2 viewportRectMin;
     ImVec2 viewportRectMax;
+    ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::LOCAL;
 
-    Object3D *selectedObject;
+    Object3D *selectedObject = nullptr;
 
     // Display size
     Magnum::Vector2i size{500, 500};

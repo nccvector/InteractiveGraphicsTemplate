@@ -33,27 +33,27 @@ class Toolbar
 
         if (ImGui::Button("Plane", buttonSize))
         {
-            Magnum::Debug{} << "CREATING PLANE";
+            app->AddPlane();
         }
 
         if (ImGui::Button("Cube", buttonSize))
         {
-            Magnum::Debug{} << "CREATING CUBE";
+            app->AddCube();
         }
 
         if (ImGui::Button("Sphere", buttonSize))
         {
-            Magnum::Debug{} << "CREATING SPHERE";
+            app->AddSphere();
         }
 
         if (ImGui::Button("Cone", buttonSize))
         {
-            Magnum::Debug{} << "CREATING CONE";
+            app->AddCone();
         }
 
         if (ImGui::Button("Capsule", buttonSize))
         {
-            Magnum::Debug{} << "CREATING CAPSULE";
+            app->AddCapsule();
         }
 
         ImGui::End();

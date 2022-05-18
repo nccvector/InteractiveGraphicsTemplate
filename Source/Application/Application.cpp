@@ -30,7 +30,6 @@
 #include "BasicDrawable.h"
 #include "Input.h"
 #include "Primitives.h"
-#include <ImGuizmo.h>
 
 using namespace Magnum;
 using Object3D = SceneGraph::Object<SceneGraph::MatrixTransformation3D>;
@@ -69,7 +68,7 @@ Application::Application(const Arguments &arguments) : Platform::Application{arg
     _grid = MeshTools::compile(Primitives::grid3DWireframe({15, 15}));
     auto grid = new Object3D{&_scene};
     (*grid).rotateX(90.0_degf).scale(Vector3{8.0f});
-    new FlatDrawable{*grid, _flatShader, _grid, _drawables};
+    new FlatDrawable{*grid, _flatShader, _grid, _debugDrawables};
     /* Grid */
 
     /* Set up the camera */
@@ -92,6 +91,14 @@ void Application::drawEvent()
 {
     // Input processing
     Input::update();
+
+    if (Input::GetKeyDown(KeyCode::R))
+    {
+        if (_drawables.size() > 0)
+            _drawables.remove(_drawables[_drawables.size() - 1]);
+
+        selectedObject = nullptr;
+    }
 
     // Layers::OnUpdate()
     for (auto layer : layers)
@@ -117,6 +124,7 @@ void Application::drawEvent()
     GL::Renderer::disable(GL::Renderer::Feature::Blending);
 
     mainCam->draw(_drawables);
+    mainCam->draw(_debugDrawables);
 
     // Blit to a proxy buffer with texture
     // Display texture
@@ -262,9 +270,6 @@ bool Application::EditTransform(Matrix4 &matrix)
 {
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::SetDrawlist();
-
-    static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
-    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
 
     ImGuiIO &io = ImGui::GetIO();
 
@@ -427,11 +432,39 @@ void Application::_guiDrawViewport()
         layer->OnViewportRender();
 
     // Transform handling (IMGUIZMO DRAWING)
-    Matrix4 mat = Application::singleton()->selectedObject->transformation();
-    if (Application::singleton()->EditTransform(mat))
-        Application::singleton()->selectedObject->setTransformation(mat);
+    if (selectedObject != nullptr)
+    {
+        Matrix4 mat = Application::singleton()->selectedObject->transformation();
+        if (Application::singleton()->EditTransform(mat))
+            Application::singleton()->selectedObject->setTransformation(mat);
+    }
 
     ImGui::EndChild();
     ImGui::End();
     ImGui::PopStyleVar();
+}
+
+void Application::AddPlane()
+{
+    selectedObject = new Plane{_scene, _phongShader, _drawables};
+}
+
+void Application::AddCube()
+{
+    selectedObject = new Cube{_scene, _phongShader, _drawables};
+}
+
+void Application::AddSphere()
+{
+    selectedObject = new Sphere{_scene, _phongShader, _drawables};
+}
+
+void Application::AddCone()
+{
+    selectedObject = new Cone{_scene, _phongShader, _drawables};
+}
+
+void Application::AddCapsule()
+{
+    selectedObject = new Capsule{_scene, _phongShader, _drawables};
 }
