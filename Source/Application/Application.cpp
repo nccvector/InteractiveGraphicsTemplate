@@ -88,11 +88,6 @@ Application::Application(const Arguments &arguments) : Platform::Application{arg
     // ADD LAYERS AT THE END...
 }
 
-void Application::update()
-{
-    // Implement the logic here...
-}
-
 void Application::drawEvent()
 {
     // Input processing

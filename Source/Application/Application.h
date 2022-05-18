@@ -65,8 +65,6 @@ class Application : public Magnum::Platform::Application
     bool EditTransform(Magnum::Matrix4 &matrix);
 
   private:
-    virtual void update();
-
     void drawEvent() override;
 
     void viewportEvent(ViewportEvent &event) override;
