@@ -1,6 +1,8 @@
 #include "Application.h"
 #include "Primitives.h"
 
+#include "CameraControllerLayer.h"
+
 namespace Magnum
 {
 
@@ -15,18 +17,19 @@ class MyApplication : public Application
     explicit MyApplication(const Arguments &arguments);
 
   private:
-    Object3D *tempObj;
 };
 
 MyApplication::MyApplication(const Arguments &arguments) : Application{arguments}
 {
+    // Create some objects
     std::vector<Object3D *> objs = {new Cube{_scene, _phongShader, _drawables},
                                     new Capsule{_scene, _phongShader, _drawables}};
 
-    tempObj = objs[0];
-
     // Set selected object
-    selectedObject = tempObj;
+    selectedObject = objs[0];
+
+    // ADD ALL THE LAYERS
+    layers.PushLayer(new CameraControllerLayer());
 }
 
 } // namespace Magnum

@@ -32,8 +32,6 @@
 #include "Primitives.h"
 #include <ImGuizmo.h>
 
-#include "CameraControllerLayer.h"
-
 using namespace Magnum;
 using Object3D = SceneGraph::Object<SceneGraph::MatrixTransformation3D>;
 using Scene3D = SceneGraph::Scene<SceneGraph::MatrixTransformation3D>;
@@ -87,8 +85,7 @@ Application::Application(const Arguments &arguments) : Platform::Application{arg
     // Initialize GUI
     _guiInit();
 
-    // ADD ALL THE LAYERS
-    layers.PushLayer(new CameraControllerLayer());
+    // ADD LAYERS AT THE END...
 }
 
 void Application::update()

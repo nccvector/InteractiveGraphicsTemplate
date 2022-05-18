@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Layer.h"
-
 #include "Application.h"
-
 #include "Input.h"
+#include "Layer.h"
 
 class CameraControllerLayer : public Layer
 {
