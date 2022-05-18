@@ -42,7 +42,7 @@ void MouseInteractionExample::update()
     if (mouseOverViewport && Input::GetMouseButton(1))
     {
         // Update camera rotations
-        _rotationPoint = mainCam->transformation().translation();
+        Vector3 _rotationPoint = mainCam->transformation().translation();
 
         // Rotation about world Y
         mainCam->transform(Matrix4::translation(_rotationPoint) *

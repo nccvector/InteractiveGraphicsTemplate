@@ -90,10 +90,6 @@ class Application : public Magnum::Platform::Application
     Magnum::SceneGraph::DrawableGroup3D _drawables;
     Magnum::MainCamera *mainCam;
 
-    Magnum::Float _lastDepth;
-    Magnum::Vector2i _lastPosition{-1};
-    Magnum::Vector3 _rotationPoint, _translationPoint;
-
     int pMSAA = 8;
     bool mouseOverViewport = false;
     ImVec2 viewportRectMin;
