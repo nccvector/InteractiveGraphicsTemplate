@@ -1,8 +1,5 @@
 #include "Application.h"
-
 #include "Primitives.h"
-
-#include "Input.h"
 
 namespace Magnum
 {
@@ -12,16 +9,16 @@ using Scene3D = SceneGraph::Scene<SceneGraph::MatrixTransformation3D>;
 
 using namespace Math::Literals;
 
-class MouseInteractionExample : public Application
+class MyApplication : public Application
 {
   public:
-    explicit MouseInteractionExample(const Arguments &arguments);
+    explicit MyApplication(const Arguments &arguments);
 
   private:
     Object3D *tempObj;
 };
 
-MouseInteractionExample::MouseInteractionExample(const Arguments &arguments) : Application{arguments}
+MyApplication::MyApplication(const Arguments &arguments) : Application{arguments}
 {
     std::vector<Object3D *> objs = {new Cube{_scene, _phongShader, _drawables},
                                     new Capsule{_scene, _phongShader, _drawables}};
@@ -34,4 +31,4 @@ MouseInteractionExample::MouseInteractionExample(const Arguments &arguments) : A
 
 } // namespace Magnum
 
-MAGNUM_APPLICATION_MAIN(Magnum::MouseInteractionExample)
+MAGNUM_APPLICATION_MAIN(Magnum::MyApplication)

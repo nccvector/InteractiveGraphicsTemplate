@@ -24,8 +24,6 @@ class CameraControllerLayer : public Layer
 
     virtual void OnUpdate() override
     {
-        Magnum::Debug{} << "CAMERA CONTROLLER UPDATE";
-
         // Do some processing
         float moveSpeed = 0.1f;
         auto mouseSensitivity = 0.003_radf;
