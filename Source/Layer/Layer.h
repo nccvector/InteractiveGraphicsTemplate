@@ -29,6 +29,10 @@ class Layer
     {
     }
 
+    virtual void OnViewportRender()
+    {
+    }
+
     virtual void ViewportEvent(Magnum::Platform::GlfwApplication::ViewportEvent &even)
     {
     }

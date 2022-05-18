@@ -380,9 +380,14 @@ void Application::_guiEnd()
 
 void Application::_guiDrawViewport()
 {
+    ImGuiWindowFlags windowFlags = 0;
+
+    // Viewport size constraints
+    ImGui::SetNextWindowSizeConstraints(ImVec2(250, 250), ImVec2(INFINITY, INFINITY));
+
     // Drawing Viewport
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("OpenGL Viewport");
+    ImGui::Begin("OpenGL Viewport", nullptr, windowFlags);
     ImGui::BeginChild("WinCont", ImVec2{0, 0}, false, ImGuiWindowFlags_NoMove);
 
     // UPDATE VIEWPORT RECT
@@ -416,6 +421,10 @@ void Application::_guiDrawViewport()
     Application::singleton()->mainCam->setViewport(Application::singleton()->size);
 
     Magnum::ImGuiIntegration::image(*Application::singleton()->colorTexPtr, (Vector2)ImGui::GetContentRegionAvail());
+
+    // Layers::OnViewportRender()
+    for (auto layer : layers)
+        layer->OnViewportRender();
 
     // Transform handling (IMGUIZMO DRAWING)
     Matrix4 mat = Application::singleton()->selectedObject->transformation();

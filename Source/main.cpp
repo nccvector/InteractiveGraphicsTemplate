@@ -2,6 +2,7 @@
 #include "Primitives.h"
 
 #include "CameraControllerLayer.h"
+#include "GUILayer.h"
 
 namespace Magnum
 {
@@ -30,6 +31,7 @@ MyApplication::MyApplication(const Arguments &arguments) : Application{arguments
 
     // ADD ALL THE LAYERS
     layers.PushLayer(new CameraControllerLayer());
+    layers.PushLayer(new GUILayer());
 }
 
 } // namespace Magnum
