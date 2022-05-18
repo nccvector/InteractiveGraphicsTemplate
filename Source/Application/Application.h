@@ -14,11 +14,13 @@
 #include <Magnum/Shaders/PhongGL.h>
 #include <Magnum/Shaders/VertexColorGL.h>
 
+#include <Magnum/Platform/GlfwApplication.h>
+
 #include <Magnum/ImGuiIntegration/Context.hpp>
+#include <Magnum/ImGuiIntegration/Widgets.h>
 
 #include "MainCamera.h"
 
-#include "GUILayer.h"
 #include "LayerStack.h"
 
 #define VectorRight                                                                                                    \
@@ -78,6 +80,12 @@ class Application : public Magnum::Platform::Application
     void mouseScrollEvent(MouseScrollEvent &event) override;
     void textInputEvent(TextInputEvent &event) override;
 
+    // GUI Functions
+    void _guiInit();
+    void _guiBegin();
+    void _guiEnd();
+    void _guiDrawViewport();
+
   public:
     //================================================================================
     // GUILayer
@@ -101,11 +109,16 @@ class Application : public Magnum::Platform::Application
     // Display size
     Magnum::Vector2i size{500, 500};
 
-    GUILayer gui;
     Magnum::GL::Texture2D *colorTexPtr;
 
     LayerStack layers;
 
   private:
     static Application *instance;
+
+    Magnum::ImGuiIntegration::Context _imgui{Corrade::NoCreate};
+    bool _showDemoWindow = true;
+    bool _showAnotherWindow = false;
+    Magnum::Color4 _clearColor = Magnum::Color4(0.1f, 0.1f, 0.1f, 1.0f);
+    Magnum::Float _floatValue = 0.0f;
 };

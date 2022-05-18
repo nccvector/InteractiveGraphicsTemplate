@@ -81,7 +81,6 @@ add_executable(${PROJECT_NAME}
     Source/Input/Input.cpp
     Source/Application/Application.cpp
     Source/Layer/LayerStack.cpp
-    Source/Layer/GUILayer.cpp
     )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

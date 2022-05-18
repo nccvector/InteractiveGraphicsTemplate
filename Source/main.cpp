@@ -18,8 +18,6 @@ class MouseInteractionExample : public Application
     explicit MouseInteractionExample(const Arguments &arguments);
 
   private:
-    void update() override;
-
     Object3D *tempObj;
 };
 
@@ -30,16 +28,8 @@ MouseInteractionExample::MouseInteractionExample(const Arguments &arguments) : A
 
     tempObj = objs[0];
 
+    // Set selected object
     selectedObject = tempObj;
-}
-
-void MouseInteractionExample::update()
-{
-
-    // ImGui::Begin("Debug Size");
-    // ImGui::SliderInt("size-x", &size[0], 10, 2000);
-    // ImGui::SliderInt("size-y", &size[1], 10, 2000);
-    // ImGui::End();
 }
 
 } // namespace Magnum
