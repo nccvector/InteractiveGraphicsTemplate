@@ -53,6 +53,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/Externals/magnum-plugins EXCLUDE_FROM_ALL
 include_directories(${PROJECT_SOURCE_DIR}/Externals/ImGuizmo)
 include_directories(${PROJECT_SOURCE_DIR}/Source)
 include_directories(${PROJECT_SOURCE_DIR}/Source/Application)
+include_directories(${PROJECT_SOURCE_DIR}/Source/Layer)
 include_directories(${PROJECT_SOURCE_DIR}/Source/Input)
 include_directories(${PROJECT_SOURCE_DIR}/Source/Camera)
 include_directories(${PROJECT_SOURCE_DIR}/Source/Primitives)
@@ -79,6 +80,7 @@ add_executable(${PROJECT_NAME}
     Source/main.cpp
     Source/Input/Input.cpp
     Source/Application/Application.cpp
+    Source/Layer/GUILayer.cpp
     )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

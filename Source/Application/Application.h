@@ -2,10 +2,7 @@
 
 #include <Magnum/Math/Matrix4.h>
 
-#include <Magnum/ImGuiIntegration/Context.hpp>
-#include <Magnum/ImGuiIntegration/Widgets.h>
-
-#include <Magnum/Platform/GlfwApplication.h>
+#include <Magnum/GL/Texture.h>
 
 #include <Magnum/SceneGraph/Camera.h>
 #include <Magnum/SceneGraph/Drawable.h>
@@ -17,7 +14,11 @@
 #include <Magnum/Shaders/PhongGL.h>
 #include <Magnum/Shaders/VertexColorGL.h>
 
+#include <Magnum/ImGuiIntegration/Context.hpp>
+
 #include "MainCamera.h"
+
+#include "GUILayer.h"
 
 #define VectorRight                                                                                                    \
     Vector3                                                                                                            \
@@ -53,6 +54,13 @@ class Application : public Magnum::Platform::Application
   public:
     explicit Application(const Arguments &arguments);
 
+    static Application *singleton()
+    {
+        return instance;
+    }
+
+    bool EditTransform(Magnum::Matrix4 &matrix);
+
   private:
     virtual void update();
 
@@ -69,15 +77,9 @@ class Application : public Magnum::Platform::Application
     void mouseScrollEvent(MouseScrollEvent &event) override;
     void textInputEvent(TextInputEvent &event) override;
 
-    bool EditTransform(Magnum::Matrix4 &matrix);
-
   public:
     //================================================================================
-    Magnum::ImGuiIntegration::Context _imgui{Corrade::NoCreate};
-    bool _showDemoWindow = true;
-    bool _showAnotherWindow = false;
-    Magnum::Color4 _clearColor = 0x72909aff_rgbaf;
-    Magnum::Float _floatValue = 0.0f;
+    // GUILayer
     //================================================================================
 
     Magnum::Shaders::VertexColorGL3D _vertexColorShader{Corrade::NoCreate};
@@ -98,4 +100,13 @@ class Application : public Magnum::Platform::Application
     ImVec2 viewportRectMax;
 
     Object3D *selectedObject;
+
+    // Display size
+    Magnum::Vector2i size{500, 500};
+
+    GUILayer gui;
+    Magnum::GL::Texture2D *colorTexPtr;
+
+  private:
+    static Application *instance;
 };
