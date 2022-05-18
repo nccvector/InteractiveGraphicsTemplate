@@ -32,6 +32,8 @@
 #include "Primitives.h"
 #include <ImGuizmo.h>
 
+#include "CameraControllerLayer.h"
+
 using namespace Magnum;
 using Object3D = SceneGraph::Object<SceneGraph::MatrixTransformation3D>;
 using Scene3D = SceneGraph::Scene<SceneGraph::MatrixTransformation3D>;
@@ -82,8 +84,10 @@ Application::Application(const Arguments &arguments) : Platform::Application{arg
     // Initialize other modules and layers
     Input::Init(window());
 
-    // ATTACH ALL THE LAYERS
     gui.OnAttach();
+
+    // ADD ALL THE LAYERS
+    layers.PushLayer(new CameraControllerLayer());
 }
 
 void Application::update()
@@ -95,6 +99,10 @@ void Application::drawEvent()
 {
     // Input processing
     Input::update();
+
+    // Layers::OnUpdate()
+    for (auto layer : layers)
+        layer->OnUpdate();
 
     //================================================================================
 
@@ -141,7 +149,9 @@ void Application::drawEvent()
 
     gui.Begin();
 
-    update();
+    // Layers::OnGUIRender()
+    for (auto layer : layers)
+        layer->OnGUIRender();
 
     //================================================================================
 
@@ -160,6 +170,10 @@ void Application::viewportEvent(ViewportEvent &event)
     //================================================================================
 
     gui.ViewportEvent(event);
+
+    // Handle the event in layers
+    for (auto layer : layers)
+        layer->ViewportEvent(event);
 }
 
 void Application::keyPressEvent(KeyEvent &event)
@@ -169,6 +183,10 @@ void Application::keyPressEvent(KeyEvent &event)
     //================================================================================
 
     gui.KeyPressEvent(event);
+
+    // Handle the event in layers
+    for (auto layer : layers)
+        layer->KeyPressEvent(event);
 }
 
 void Application::keyReleaseEvent(KeyEvent &event)
@@ -178,6 +196,10 @@ void Application::keyReleaseEvent(KeyEvent &event)
     //================================================================================
 
     gui.KeyReleaseEvent(event);
+
+    // Handle the event in layers
+    for (auto layer : layers)
+        layer->KeyReleaseEvent(event);
 }
 
 void Application::mousePressEvent(MouseEvent &event)
@@ -187,6 +209,10 @@ void Application::mousePressEvent(MouseEvent &event)
     //================================================================================
 
     gui.MousePressEvent(event);
+
+    // Handle the event in layers
+    for (auto layer : layers)
+        layer->MousePressEvent(event);
 }
 
 void Application::mouseReleaseEvent(MouseEvent &event)
@@ -196,6 +222,10 @@ void Application::mouseReleaseEvent(MouseEvent &event)
     //================================================================================
 
     gui.MouseReleaseEvent(event);
+
+    // Handle the event in layers
+    for (auto layer : layers)
+        layer->MouseReleaseEvent(event);
 }
 
 void Application::mouseMoveEvent(MouseMoveEvent &event)
@@ -203,16 +233,28 @@ void Application::mouseMoveEvent(MouseMoveEvent &event)
     //================================================================================
 
     gui.MouseMoveEvent(event);
+
+    // Handle the event in layers
+    for (auto layer : layers)
+        layer->MouseMoveEvent(event);
 }
 
 void Application::mouseScrollEvent(MouseScrollEvent &event)
 {
     gui.MouseScrollEvent(event);
+
+    // Handle the event in layers
+    for (auto layer : layers)
+        layer->MouseScrollEvent(event);
 }
 
 void Application::textInputEvent(TextInputEvent &event)
 {
     gui.TextInputEvent(event);
+
+    // Handle the event in layers
+    for (auto layer : layers)
+        layer->TextInputEvent(event);
 }
 
 bool Application::EditTransform(Matrix4 &matrix)

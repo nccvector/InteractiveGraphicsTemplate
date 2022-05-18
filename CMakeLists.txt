@@ -80,6 +80,7 @@ add_executable(${PROJECT_NAME}
     Source/main.cpp
     Source/Input/Input.cpp
     Source/Application/Application.cpp
+    Source/Layer/LayerStack.cpp
     Source/Layer/GUILayer.cpp
     )
 

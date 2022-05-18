@@ -35,47 +35,6 @@ MouseInteractionExample::MouseInteractionExample(const Arguments &arguments) : A
 
 void MouseInteractionExample::update()
 {
-    // Do some processing
-    float moveSpeed = 0.1f;
-    auto mouseSensitivity = 0.003_radf;
-
-    if (mouseOverViewport && Input::GetMouseButton(1))
-    {
-        // Update camera rotations
-        Vector3 _rotationPoint = mainCam->transformation().translation();
-
-        // Rotation about world Y
-        mainCam->transform(Matrix4::translation(_rotationPoint) *
-                           Matrix4::rotationY(-mouseSensitivity * Input::GetMouseDelta().x()) *
-                           Matrix4::translation(-_rotationPoint));
-
-        // Rotation about local
-        mainCam->transformLocal(Matrix4::rotationX(-mouseSensitivity * Input::GetMouseDelta().y()));
-
-        // Move camera with keys
-        if (Input::GetKey(KeyCode::LeftShift))
-            moveSpeed *= 2;
-
-        if (Input::GetKey(KeyCode::W))
-            mainCam->translateLocal(VectorForward * -moveSpeed);
-
-        if (Input::GetKey(KeyCode::A))
-            mainCam->translateLocal(VectorLeft * moveSpeed);
-
-        if (Input::GetKey(KeyCode::S))
-            mainCam->translateLocal(VectorBackward * -moveSpeed);
-
-        if (Input::GetKey(KeyCode::D))
-            mainCam->translateLocal(VectorRight * moveSpeed);
-
-        if (Input::GetKey(KeyCode::E))
-            mainCam->translateLocal(VectorUp * moveSpeed);
-
-        if (Input::GetKey(KeyCode::Q))
-            mainCam->translateLocal(VectorDown * moveSpeed);
-    }
-
-    ImGui::ShowDemoWindow();
 
     // ImGui::Begin("Debug Size");
     // ImGui::SliderInt("size-x", &size[0], 10, 2000);

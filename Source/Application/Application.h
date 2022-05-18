@@ -19,9 +19,10 @@
 #include "MainCamera.h"
 
 #include "GUILayer.h"
+#include "LayerStack.h"
 
 #define VectorRight                                                                                                    \
-    Vector3                                                                                                            \
+    Magnum::Vector3                                                                                                    \
     {                                                                                                                  \
         1.0f, 0.0f, 0.0f                                                                                               \
     }
@@ -29,7 +30,7 @@
 #define VectorLeft VectorRight * -1
 
 #define VectorUp                                                                                                       \
-    Vector3                                                                                                            \
+    Magnum::Vector3                                                                                                    \
     {                                                                                                                  \
         0.0f, 1.0f, 0.0f                                                                                               \
     }
@@ -37,7 +38,7 @@
 #define VectorDown VectorUp * -1
 
 #define VectorForward                                                                                                  \
-    Vector3                                                                                                            \
+    Magnum::Vector3                                                                                                    \
     {                                                                                                                  \
         0.0f, 0.0f, 1.0f                                                                                               \
     }
@@ -102,6 +103,8 @@ class Application : public Magnum::Platform::Application
 
     GUILayer gui;
     Magnum::GL::Texture2D *colorTexPtr;
+
+    LayerStack layers;
 
   private:
     static Application *instance;
