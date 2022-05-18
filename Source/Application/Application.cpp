@@ -70,17 +70,17 @@ Application::Application(const Arguments &arguments) : Platform::Application{arg
     auto grid = new Object3D{&_scene};
     (*grid).rotateX(90.0_degf).scale(Vector3{8.0f});
     new FlatDrawable{*grid, _flatShader, _grid, _drawables};
+    /* Grid */
 
     /* Set up the camera */
     mainCam = new MainCamera{_scene};
 
-    /* Initialize initial depth to the value at scene center */
-    _lastDepth = ((mainCam->projectionMatrix() * mainCam->cameraMatrix()).transformPoint({}).z() + 1.0f) * 0.5f;
-
-    // Initialize the singletone instance for use
+    // MUST INITIALIZE THE SINGLETON PTR
+    // It is used by all other modules, better to initialize right after necessary app configurations
     Application::instance = this;
 
-    Input::init(window());
+    // Initialize other modules and layers
+    Input::Init(window());
 
     // ATTACH ALL THE LAYERS
     gui.OnAttach();
@@ -88,6 +88,7 @@ Application::Application(const Arguments &arguments) : Platform::Application{arg
 
 void Application::update()
 {
+    // Implement the logic here...
 }
 
 void Application::drawEvent()

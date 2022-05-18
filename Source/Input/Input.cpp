@@ -20,7 +20,7 @@ std::vector<int> clearGroupMouseButtonDown;
 std::vector<int> clearGroupMouseButtonUp;
 
 // PLEASE CALL INIT IN YOUR CONSTRUCTORS OR MAIN
-void init(GLFWwindow *window)
+void Init(GLFWwindow *window)
 {
     _window = window;
 

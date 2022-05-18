@@ -24,7 +24,7 @@ extern std::vector<int> clearGroupMouseButtonDown;
 extern std::vector<int> clearGroupMouseButtonUp;
 
 // PLEASE CALL INIT IN YOUR CONSTRUCTORS OR MAIN
-void init(GLFWwindow *window);
+void Init(GLFWwindow *window);
 
 void updateDown(Magnum::Platform::GlfwApplication::KeyEvent::Key key);
 
