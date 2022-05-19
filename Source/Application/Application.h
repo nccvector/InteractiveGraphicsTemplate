@@ -70,6 +70,7 @@ class Application : public Magnum::Platform::Application
     void AddSphere();
     void AddCone();
     void AddCapsule();
+    uint32_t _getUniqueID();
 
   private:
     void drawEvent() override;
@@ -90,6 +91,8 @@ class Application : public Magnum::Platform::Application
     void _guiBegin();
     void _guiEnd();
     void _guiDrawViewport();
+
+    // Utility functions
 
   public:
     //================================================================================

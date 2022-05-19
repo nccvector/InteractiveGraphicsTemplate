@@ -27,6 +27,8 @@
 #include <Magnum/SceneGraph/Object.h>
 #include <Magnum/SceneGraph/Scene.h>
 
+#include "Application.h"
+
 namespace Magnum
 {
 
@@ -45,12 +47,15 @@ class Plane : public Object3D, public SceneGraph::Drawable3D
         _color = Color4{0.5f, 0.5f, 0.5f, 1.0f};
 
         rotateX(-90.0_degf).scale(Vector3{2, 2, 2});
+
+        _id = Application::singleton()->_getUniqueID();
     }
 
   private:
     void draw(const Matrix4 &transformationMatrix, SceneGraph::Camera3D &camera) override
     {
-        _shader.setDiffuseColor(_color)
+        _shader.setObjectId(_id)
+            .setDiffuseColor(_color)
             .setAmbientColor(0x111111_rgbf)
             .setShininess(80.0f)
             .setLightPositions({Vector4{3.0f, 3.0f, 3.0f, 0.0f}})
@@ -60,6 +65,7 @@ class Plane : public Object3D, public SceneGraph::Drawable3D
             .draw(_mesh);
     }
 
+    uint32_t _id;
     GL::Mesh _mesh;
     Shaders::PhongGL &_shader;
     Color4 _color; // Keep material props here in future
@@ -73,12 +79,14 @@ class Cube : public Object3D, public SceneGraph::Drawable3D
     {
         _mesh = MeshTools::compile(Primitives::cubeSolid());
         _color = Color4{0.5f, 0.5f, 0.5f, 1.0f};
+        _id = Application::singleton()->_getUniqueID();
     }
 
   private:
     void draw(const Matrix4 &transformationMatrix, SceneGraph::Camera3D &camera) override
     {
-        _shader.setDiffuseColor(_color)
+        _shader.setObjectId(_id)
+            .setDiffuseColor(_color)
             .setAmbientColor(0x111111_rgbf)
             .setShininess(80.0f)
             .setLightPositions({Vector4{3.0f, 3.0f, 3.0f, 0.0f}})
@@ -88,6 +96,7 @@ class Cube : public Object3D, public SceneGraph::Drawable3D
             .draw(_mesh);
     }
 
+    uint32_t _id;
     GL::Mesh _mesh;
     Shaders::PhongGL &_shader;
     Color4 _color; // Keep material props here in future
@@ -101,12 +110,14 @@ class Sphere : public Object3D, public SceneGraph::Drawable3D
     {
         _mesh = MeshTools::compile(Primitives::icosphereSolid(3));
         _color = Color4{0.5f, 0.5f, 0.5f, 1.0f};
+        _id = Application::singleton()->_getUniqueID();
     }
 
   private:
     void draw(const Matrix4 &transformationMatrix, SceneGraph::Camera3D &camera) override
     {
-        _shader.setDiffuseColor(_color)
+        _shader.setObjectId(_id)
+            .setDiffuseColor(_color)
             .setAmbientColor(0x111111_rgbf)
             .setShininess(80.0f)
             .setLightPositions({Vector4{3.0f, 3.0f, 3.0f, 0.0f}})
@@ -116,6 +127,7 @@ class Sphere : public Object3D, public SceneGraph::Drawable3D
             .draw(_mesh);
     }
 
+    uint32_t _id;
     GL::Mesh _mesh;
     Shaders::PhongGL &_shader;
     Color4 _color; // Keep material props here in future
@@ -129,12 +141,14 @@ class Cone : public Object3D, public SceneGraph::Drawable3D
     {
         _mesh = MeshTools::compile(Primitives::coneSolid(10, 16, 1));
         _color = Color4{0.5f, 0.5f, 0.5f, 1.0f};
+        _id = Application::singleton()->_getUniqueID();
     }
 
   private:
     void draw(const Matrix4 &transformationMatrix, SceneGraph::Camera3D &camera) override
     {
-        _shader.setDiffuseColor(_color)
+        _shader.setObjectId(_id)
+            .setDiffuseColor(_color)
             .setAmbientColor(0x111111_rgbf)
             .setShininess(80.0f)
             .setLightPositions({Vector4{3.0f, 3.0f, 3.0f, 0.0f}})
@@ -144,6 +158,7 @@ class Cone : public Object3D, public SceneGraph::Drawable3D
             .draw(_mesh);
     }
 
+    uint32_t _id;
     GL::Mesh _mesh;
     Shaders::PhongGL &_shader;
     Color4 _color; // Keep material props here in future
@@ -157,12 +172,14 @@ class Capsule : public Object3D, public SceneGraph::Drawable3D
     {
         _mesh = MeshTools::compile(Primitives::capsule3DSolid(10, 10, 16, 0.5f));
         _color = Color4{0.5f, 0.5f, 0.5f, 1.0f};
+        _id = Application::singleton()->_getUniqueID();
     }
 
   private:
     void draw(const Matrix4 &transformationMatrix, SceneGraph::Camera3D &camera) override
     {
-        _shader.setDiffuseColor(_color)
+        _shader.setObjectId(_id)
+            .setDiffuseColor(_color)
             .setAmbientColor(0x111111_rgbf)
             .setShininess(80.0f)
             .setLightPositions({Vector4{3.0f, 3.0f, 3.0f, 0.0f}})
@@ -172,6 +189,7 @@ class Capsule : public Object3D, public SceneGraph::Drawable3D
             .draw(_mesh);
     }
 
+    uint32_t _id;
     GL::Mesh _mesh;
     Shaders::PhongGL &_shader;
     Color4 _color; // Keep material props here in future

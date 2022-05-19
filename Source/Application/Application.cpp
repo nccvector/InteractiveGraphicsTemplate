@@ -61,7 +61,7 @@ Application::Application(const Arguments &arguments) : Platform::Application{arg
     /* Shaders, renderer setup */
     _vertexColorShader = Shaders::VertexColorGL3D{};
     _flatShader = Shaders::FlatGL3D{};
-    _phongShader = Shaders::PhongGL{};
+    _phongShader = Shaders::PhongGL{Magnum::Shaders::PhongGL::Flag::ObjectId};
     _phongShader.setAmbientColor(0x747474_rgbf).setShininess(80.0f);
 
     /* Grid */
@@ -468,4 +468,13 @@ void Application::AddCone()
 void Application::AddCapsule()
 {
     selectedObject = new Capsule{*root, _phongShader, _drawables};
+}
+
+uint32_t Application::_getUniqueID()
+{
+    static uint64_t id = 0;
+    id++;
+
+    // Start from zero
+    return id - 1;
 }
