@@ -10,6 +10,16 @@
 #include <Magnum/SceneGraph/Object.h>
 #include <Magnum/SceneGraph/Scene.h>
 
+#include <Magnum/GL/Buffer.h>
+#include <Magnum/GL/DefaultFramebuffer.h>
+#include <Magnum/GL/Framebuffer.h>
+#include <Magnum/GL/Mesh.h>
+#include <Magnum/GL/PixelFormat.h>
+#include <Magnum/GL/Renderbuffer.h>
+#include <Magnum/GL/RenderbufferFormat.h>
+#include <Magnum/GL/Renderer.h>
+#include <Magnum/GL/TextureFormat.h>
+
 #include <Magnum/Shaders/FlatGL.h>
 #include <Magnum/Shaders/PhongGL.h>
 #include <Magnum/Shaders/VertexColorGL.h>
@@ -108,6 +118,13 @@ class Application : public Magnum::Platform::Application
     Magnum::SceneGraph::DrawableGroup3D _drawables;
     Magnum::SceneGraph::DrawableGroup3D _debugDrawables;
     Magnum::MainCamera *mainCam;
+
+    // Buffers
+    Magnum::GL::Renderbuffer color{Corrade::NoCreate};
+    Magnum::GL::Renderbuffer depthStencil{Corrade::NoCreate};
+    Magnum::GL::Renderbuffer objectId{Corrade::NoCreate};
+    Magnum::GL::Framebuffer framebufferMSAA{Corrade::NoCreate};
+    Magnum::GL::Framebuffer framebufferProxy{Corrade::NoCreate};
 
     int pMSAA = 8;
     bool mouseOverViewport = false;

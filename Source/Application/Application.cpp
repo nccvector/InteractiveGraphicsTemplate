@@ -5,16 +5,6 @@
 #include <Magnum/Math/Color.h>
 #include <Magnum/Math/FunctionsBatch.h>
 
-#include <Magnum/GL/Buffer.h>
-#include <Magnum/GL/DefaultFramebuffer.h>
-#include <Magnum/GL/Framebuffer.h>
-#include <Magnum/GL/Mesh.h>
-#include <Magnum/GL/PixelFormat.h>
-#include <Magnum/GL/Renderbuffer.h>
-#include <Magnum/GL/RenderbufferFormat.h>
-#include <Magnum/GL/Renderer.h>
-#include <Magnum/GL/TextureFormat.h>
-
 #include <Magnum/Mesh.h>
 #include <Magnum/PixelFormat.h>
 #include <Magnum/Primitives/Cube.h>
@@ -109,12 +99,14 @@ void Application::drawEvent()
 
     // Prepare an 8x msaa buffer and render to it
     /* 8x MSAA */
-    GL::Renderbuffer color, depthStencil, objectId;
+    color = GL::Renderbuffer{};
+    depthStencil = GL::Renderbuffer{};
+    objectId = GL::Renderbuffer{};
     color.setStorageMultisample(pMSAA, GL::RenderbufferFormat::RGBA8, size);
     depthStencil.setStorageMultisample(pMSAA, GL::RenderbufferFormat::Depth24Stencil8, size);
     objectId.setStorageMultisample(pMSAA, GL::RenderbufferFormat::R16UI, size);
 
-    GL::Framebuffer framebufferMSAA{{{}, size}};
+    framebufferMSAA = GL::Framebuffer({{}, size});
     framebufferMSAA.attachRenderbuffer(GL::Framebuffer::ColorAttachment{0}, color);
     framebufferMSAA.attachRenderbuffer(GL::Framebuffer::ColorAttachment{1}, objectId);
     framebufferMSAA.attachRenderbuffer(GL::Framebuffer::BufferAttachment::DepthStencil, depthStencil);
@@ -141,7 +133,7 @@ void Application::drawEvent()
     colorTexPtr = &colorTex;
     colorTex.setStorage(1, GL::TextureFormat::RGBA8, size);
 
-    GL::Framebuffer framebufferProxy{{{}, size}};
+    framebufferProxy = GL::Framebuffer{{{}, size}};
     framebufferProxy.attachTexture(GL::Framebuffer::ColorAttachment{0}, colorTex, 0);
     framebufferProxy.clear(GL::FramebufferClear::Color | GL::FramebufferClear::Depth).bind();
 
