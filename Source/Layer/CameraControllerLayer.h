@@ -26,7 +26,7 @@ class CameraControllerLayer : public Layer
         float moveSpeed = 0.1f;
         auto mouseSensitivity = 0.002_radf;
 
-        if (app->mouseOverViewport && Input::GetMouseButton(1))
+        if (app->usingViewport && Input::GetMouseButton(1))
         {
             // Update camera rotations
             Magnum::Vector3 _rotationPoint = app->mainCam->transformation().translation();

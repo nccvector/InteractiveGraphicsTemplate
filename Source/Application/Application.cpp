@@ -109,15 +109,23 @@ void Application::drawEvent()
 
     // Prepare an 8x msaa buffer and render to it
     /* 8x MSAA */
-    GL::Renderbuffer color, objectId, depthStencil;
+    GL::Renderbuffer color, depthStencil, objectId;
     color.setStorageMultisample(pMSAA, GL::RenderbufferFormat::RGBA8, size);
     depthStencil.setStorageMultisample(pMSAA, GL::RenderbufferFormat::Depth24Stencil8, size);
+    objectId.setStorageMultisample(pMSAA, GL::RenderbufferFormat::R16UI, size);
 
     GL::Framebuffer framebufferMSAA{{{}, size}};
     framebufferMSAA.attachRenderbuffer(GL::Framebuffer::ColorAttachment{0}, color);
+    framebufferMSAA.attachRenderbuffer(GL::Framebuffer::ColorAttachment{1}, objectId);
     framebufferMSAA.attachRenderbuffer(GL::Framebuffer::BufferAttachment::DepthStencil, depthStencil);
 
-    framebufferMSAA.clear(GL::FramebufferClear::Color | GL::FramebufferClear::Depth).bind();
+    // Inform shader about the channels
+    framebufferMSAA.mapForDraw({{Shaders::PhongGL::ColorOutput, GL::Framebuffer::ColorAttachment{0}},
+                                {Shaders::PhongGL::ObjectIdOutput, GL::Framebuffer::ColorAttachment{1}}});
+    framebufferMSAA.clearColor(0, Vector4{0.15f, 0.15f, 0.15f, 1.0f});
+    framebufferMSAA.clearColor(1, Vector4ui{0});
+
+    framebufferMSAA.bind();
 
     GL::Renderer::enable(GL::Renderer::Feature::DepthTest);
     GL::Renderer::enable(GL::Renderer::Feature::FaceCulling);
@@ -207,6 +215,9 @@ void Application::mousePressEvent(MouseEvent &event)
 {
     Input::updateMouseButtonDown(event.button());
 
+    if (mouseOverViewport)
+        usingViewport = true;
+
     //================================================================================
 
     if (_imgui.handleMousePressEvent(event))
@@ -220,6 +231,8 @@ void Application::mousePressEvent(MouseEvent &event)
 void Application::mouseReleaseEvent(MouseEvent &event)
 {
     Input::updateMouseButtonUp(event.button());
+
+    usingViewport = false;
 
     //================================================================================
 

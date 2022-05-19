@@ -111,6 +111,7 @@ class Application : public Magnum::Platform::Application
 
     int pMSAA = 8;
     bool mouseOverViewport = false;
+    bool usingViewport = false;
     ImVec2 viewportRectMin;
     ImVec2 viewportRectMax;
     ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::ROTATE;
