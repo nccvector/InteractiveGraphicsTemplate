@@ -101,6 +101,7 @@ class Application : public Magnum::Platform::Application
     Magnum::Shaders::PhongGL _phongShader{Corrade::NoCreate};
     Magnum::GL::Mesh _grid{Corrade::NoCreate};
     Magnum::Scene3D _scene;
+    Magnum::Object3D *root;
     Magnum::SceneGraph::DrawableGroup3D _drawables;
     Magnum::SceneGraph::DrawableGroup3D _debugDrawables;
     Magnum::MainCamera *mainCam;

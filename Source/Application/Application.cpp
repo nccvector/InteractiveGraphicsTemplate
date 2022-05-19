@@ -74,6 +74,9 @@ Application::Application(const Arguments &arguments) : Platform::Application{arg
     /* Set up the camera */
     mainCam = new MainCamera{_scene};
 
+    // initializing root
+    root = new Object3D{&_scene};
+
     // MUST INITIALIZE THE SINGLETON PTR
     // It is used by all other modules, better to initialize right after necessary app configurations
     Application::instance = this;
@@ -92,11 +95,9 @@ void Application::drawEvent()
     // Input processing
     Input::update();
 
-    if (Input::GetKeyDown(KeyCode::R))
+    if (Input::GetKeyDown(KeyCode::R) && !root->children().isEmpty())
     {
-        if (_drawables.size() > 0)
-            _drawables.remove(_drawables[_drawables.size() - 1]);
-
+        root->children().erase(root->children().last());
         selectedObject = nullptr;
     }
 
@@ -446,25 +447,25 @@ void Application::_guiDrawViewport()
 
 void Application::AddPlane()
 {
-    selectedObject = new Plane{_scene, _phongShader, _drawables};
+    selectedObject = new Plane{*root, _phongShader, _drawables};
 }
 
 void Application::AddCube()
 {
-    selectedObject = new Cube{_scene, _phongShader, _drawables};
+    selectedObject = new Cube{*root, _phongShader, _drawables};
 }
 
 void Application::AddSphere()
 {
-    selectedObject = new Sphere{_scene, _phongShader, _drawables};
+    selectedObject = new Sphere{*root, _phongShader, _drawables};
 }
 
 void Application::AddCone()
 {
-    selectedObject = new Cone{_scene, _phongShader, _drawables};
+    selectedObject = new Cone{*root, _phongShader, _drawables};
 }
 
 void Application::AddCapsule()
 {
-    selectedObject = new Capsule{_scene, _phongShader, _drawables};
+    selectedObject = new Capsule{*root, _phongShader, _drawables};
 }
