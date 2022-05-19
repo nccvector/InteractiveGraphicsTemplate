@@ -6,10 +6,10 @@
 
 #include "Toolbar.h"
 
-class GUILayer : public Layer
+class GuiLayer : public Layer
 {
   public:
-    GUILayer(const char *name = "GUILayer") : Layer{name}
+    GuiLayer(const char *name = "GUILayer") : Layer{name}
     {
     }
 
@@ -18,7 +18,7 @@ class GUILayer : public Layer
         app = Application::singleton();
     }
 
-    virtual void OnGUIRender() override
+    virtual void OnGuiRender() override
     {
         toolbar.Draw();
 

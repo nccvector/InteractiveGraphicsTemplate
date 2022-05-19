@@ -25,7 +25,7 @@ class Layer
     virtual void OnUpdate()
     {
     }
-    virtual void OnGUIRender()
+    virtual void OnGuiRender()
     {
     }
 

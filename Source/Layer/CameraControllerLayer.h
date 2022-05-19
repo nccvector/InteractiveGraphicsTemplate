@@ -24,7 +24,7 @@ class CameraControllerLayer : public Layer
     {
         // Do some processing
         float moveSpeed = 0.1f;
-        auto mouseSensitivity = 0.003_radf;
+        auto mouseSensitivity = 0.002_radf;
 
         if (app->mouseOverViewport && Input::GetMouseButton(1))
         {
@@ -63,7 +63,7 @@ class CameraControllerLayer : public Layer
         }
     }
 
-    virtual void OnGUIRender() override
+    virtual void OnGuiRender() override
     {
         ImGui::ShowDemoWindow();
     }

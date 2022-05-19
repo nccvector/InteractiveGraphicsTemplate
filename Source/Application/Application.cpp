@@ -109,7 +109,7 @@ void Application::drawEvent()
 
     // Prepare an 8x msaa buffer and render to it
     /* 8x MSAA */
-    GL::Renderbuffer color, depthStencil;
+    GL::Renderbuffer color, objectId, depthStencil;
     color.setStorageMultisample(pMSAA, GL::RenderbufferFormat::RGBA8, size);
     depthStencil.setStorageMultisample(pMSAA, GL::RenderbufferFormat::Depth24Stencil8, size);
 
@@ -149,13 +149,13 @@ void Application::drawEvent()
     // Draw on default frame buffer
     GL::defaultFramebuffer.clear(GL::FramebufferClear::Color).bind();
 
-    _guiBegin();
+    this->_guiBegin();
 
-    // Layers::OnGUIRender()
+    // Layers::OnGuiRender()
     for (auto layer : layers)
-        layer->OnGUIRender();
+        layer->OnGuiRender();
 
-    _guiEnd();
+    this->_guiEnd();
     //================================================================================
 
     swapBuffers();
