@@ -54,8 +54,7 @@ class Plane : public Object3D, public SceneGraph::Drawable3D
   private:
     void draw(const Matrix4 &transformationMatrix, SceneGraph::Camera3D &camera) override
     {
-        _shader.setObjectId(_id)
-            .setDiffuseColor(_color)
+        _shader.setDiffuseColor(_color)
             .setAmbientColor(0x111111_rgbf)
             .setShininess(80.0f)
             .setLightPositions({Vector4{3.0f, 3.0f, 3.0f, 0.0f}})
@@ -85,8 +84,7 @@ class Cube : public Object3D, public SceneGraph::Drawable3D
   private:
     void draw(const Matrix4 &transformationMatrix, SceneGraph::Camera3D &camera) override
     {
-        _shader.setObjectId(_id)
-            .setDiffuseColor(_color)
+        _shader.setDiffuseColor(_color)
             .setAmbientColor(0x111111_rgbf)
             .setShininess(80.0f)
             .setLightPositions({Vector4{3.0f, 3.0f, 3.0f, 0.0f}})
@@ -116,8 +114,7 @@ class Sphere : public Object3D, public SceneGraph::Drawable3D
   private:
     void draw(const Matrix4 &transformationMatrix, SceneGraph::Camera3D &camera) override
     {
-        _shader.setObjectId(_id)
-            .setDiffuseColor(_color)
+        _shader.setDiffuseColor(_color)
             .setAmbientColor(0x111111_rgbf)
             .setShininess(80.0f)
             .setLightPositions({Vector4{3.0f, 3.0f, 3.0f, 0.0f}})
@@ -147,8 +144,7 @@ class Cone : public Object3D, public SceneGraph::Drawable3D
   private:
     void draw(const Matrix4 &transformationMatrix, SceneGraph::Camera3D &camera) override
     {
-        _shader.setObjectId(_id)
-            .setDiffuseColor(_color)
+        _shader.setDiffuseColor(_color)
             .setAmbientColor(0x111111_rgbf)
             .setShininess(80.0f)
             .setLightPositions({Vector4{3.0f, 3.0f, 3.0f, 0.0f}})
@@ -178,8 +174,7 @@ class Capsule : public Object3D, public SceneGraph::Drawable3D
   private:
     void draw(const Matrix4 &transformationMatrix, SceneGraph::Camera3D &camera) override
     {
-        _shader.setObjectId(_id)
-            .setDiffuseColor(_color)
+        _shader.setDiffuseColor(_color)
             .setAmbientColor(0x111111_rgbf)
             .setShininess(80.0f)
             .setLightPositions({Vector4{3.0f, 3.0f, 3.0f, 0.0f}})

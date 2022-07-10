@@ -51,7 +51,7 @@ Application::Application(const Arguments &arguments) : Platform::Application{arg
     /* Shaders, renderer setup */
     _vertexColorShader = Shaders::VertexColorGL3D{};
     _flatShader = Shaders::FlatGL3D{};
-    _phongShader = Shaders::PhongGL{Magnum::Shaders::PhongGL::Flag::ObjectId};
+    _phongShader = Shaders::PhongGL{};
     _phongShader.setAmbientColor(0x747474_rgbf).setShininess(80.0f);
 
     /* Grid */
@@ -101,19 +101,22 @@ void Application::drawEvent()
     /* 8x MSAA */
     color = GL::Renderbuffer{};
     depthStencil = GL::Renderbuffer{};
-    objectId = GL::Renderbuffer{};
+
+    // Updating sizes
     color.setStorageMultisample(pMSAA, GL::RenderbufferFormat::RGBA8, size);
     depthStencil.setStorageMultisample(pMSAA, GL::RenderbufferFormat::Depth24Stencil8, size);
-    objectId.setStorageMultisample(pMSAA, GL::RenderbufferFormat::R16UI, size);
+    //framebufferMSAA.setViewport({{}, size});
 
     framebufferMSAA = GL::Framebuffer({{}, size});
     framebufferMSAA.attachRenderbuffer(GL::Framebuffer::ColorAttachment{0}, color);
-    framebufferMSAA.attachRenderbuffer(GL::Framebuffer::ColorAttachment{1}, objectId);
     framebufferMSAA.attachRenderbuffer(GL::Framebuffer::BufferAttachment::DepthStencil, depthStencil);
 
     // Inform shader about the channels
-    framebufferMSAA.mapForDraw({{Shaders::PhongGL::ColorOutput, GL::Framebuffer::ColorAttachment{0}},
-                                {Shaders::PhongGL::ObjectIdOutput, GL::Framebuffer::ColorAttachment{1}}});
+    framebufferMSAA.mapForDraw({{Shaders::PhongGL::ColorOutput, GL::Framebuffer::ColorAttachment{0}}});
+
+    // CORRADE_INTERNAL_ASSERT(framebufferMSAA.checkStatus(GL::FramebufferTarget::Draw) ==
+    //                         GL::Framebuffer::Status::Complete);
+
     framebufferMSAA.clearColor(0, Vector4{0.15f, 0.15f, 0.15f, 1.0f});
     framebufferMSAA.clearColor(1, Vector4ui{0});
 
@@ -136,6 +139,47 @@ void Application::drawEvent()
     framebufferProxy = GL::Framebuffer{{{}, size}};
     framebufferProxy.attachTexture(GL::Framebuffer::ColorAttachment{0}, colorTex, 0);
     framebufferProxy.clear(GL::FramebufferClear::Color | GL::FramebufferClear::Depth).bind();
+    framebufferProxy.bind();
+
+    // //////////////////
+    // // Getting the id of selected object
+    // framebufferMSAA.mapForRead(GL::Framebuffer::ColorAttachment{0});
+
+    // // Find coord on viewport buffer
+    // Vector2i coord = Input::mousePosition - (Vector2i)Vector2{viewportRectMin.x, viewportRectMin.y};
+    // // coord *= (framebufferSize() / windowSize());
+    // coord[1] = size[1] - coord[1]; // Invert Y
+
+    // Debug{} << "Coords  :" << coord;
+
+    // Image2D data{PixelFormat::RGBA8Unorm};
+    // framebufferMSAA.read(Range2Di::fromSize(coord, {1, 1}), data);
+
+    // Debug{} << "Data    :" << data.data();
+
+    // uint32_t idx = 0;
+    // if (indexPixelFormat == PixelFormat::R8UI)
+    // {
+    //     idx = static_cast<uint32_t>(data.data()[0]);
+    // }
+    // else if (indexPixelFormat == PixelFormat::R16UI)
+    // {
+    //     idx = static_cast<uint32_t>(Containers::arrayCast<uint16_t>(data.data())[0]);
+    // }
+    // else if (indexPixelFormat == PixelFormat::R32UI)
+    // {
+    //     idx = Containers::arrayCast<uint32_t>(data.data())[0];
+    // }
+    // else
+    // {
+    //     Fatal{} << "Invalid pixel format";
+    // }
+
+    // Debug{} << "Object ID: " << idx;
+    // //////////////////////
+
+    // Read the color chanel
+    framebufferMSAA.mapForRead(GL::Framebuffer::ColorAttachment{0});
 
     // Blitting to the default framebuffer
     GL::AbstractFramebuffer::blit(framebufferMSAA, framebufferProxy, framebufferMSAA.viewport(),
@@ -479,6 +523,8 @@ uint32_t Application::_getUniqueID()
 {
     static uint64_t id = 0;
     id++;
+
+    Debug{} << id;
 
     // Start from zero
     return id - 1;

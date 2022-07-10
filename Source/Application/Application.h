@@ -2,6 +2,7 @@
 
 #include <Magnum/Math/Matrix4.h>
 
+#include <Magnum/GL/MultisampleTexture.h>
 #include <Magnum/GL/Texture.h>
 
 #include <Magnum/SceneGraph/Camera.h>
@@ -19,6 +20,7 @@
 #include <Magnum/GL/RenderbufferFormat.h>
 #include <Magnum/GL/Renderer.h>
 #include <Magnum/GL/TextureFormat.h>
+#include <Magnum/PixelFormat.h>
 
 #include <Magnum/Shaders/FlatGL.h>
 #include <Magnum/Shaders/PhongGL.h>
@@ -122,9 +124,12 @@ class Application : public Magnum::Platform::Application
     // Buffers
     Magnum::GL::Renderbuffer color{Corrade::NoCreate};
     Magnum::GL::Renderbuffer depthStencil{Corrade::NoCreate};
-    Magnum::GL::Renderbuffer objectId{Corrade::NoCreate};
     Magnum::GL::Framebuffer framebufferMSAA{Corrade::NoCreate};
     Magnum::GL::Framebuffer framebufferProxy{Corrade::NoCreate};
+
+    // Object index format
+    Magnum::GL::RenderbufferFormat indexBufferFormat{Magnum::GL::RenderbufferFormat::R16UI};
+    Magnum::PixelFormat indexPixelFormat{Magnum::PixelFormat::R16UI};
 
     int pMSAA = 8;
     bool mouseOverViewport = false;
